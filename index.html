@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>临时借还流水账（云同步 · Supabase）</title>
+<style>
+  :root{--fg:#111;--muted:#666;--line:#e9e9e9}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--fg);max-width:1100px;margin:20px auto;padding:0 12px}
+  h1{margin:8px 0 12px;font-size:22px}
+  .card{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff}
+  label{font-size:13px;color:var(--muted)}
+  input,select,textarea,button{font-size:16px;border:1px solid #ccc;border-radius:10px;padding:8px}
+  input,select,textarea{width:100%;box-sizing:border-box}
+  button{cursor:pointer}
+  .row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .row-3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px}
+  .muted{color:var(--muted);font-size:13px}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{white-space:nowrap}
+  .right{text-align:right}
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#f3f3f3;font-size:12px;margin-left:6px}
+  .pos{color:#0a7c2f} .neg{color:#b00020}
+  .actions button{margin-right:6px;margin-top:4px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .hide{display:none}
+  @media(max-width:820px){ .row,.row-3{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+  <h1>临时借还流水账 <span class="muted">（云同步 · Supabase）</span></h1>
+
+  <div id="authCard" class="card">
+    <div>
+      <label>邮箱登录（接收一次性验证码）</label>
+      <input id="email" placeholder="you@example.com">
+      <div class="toolbar" style="margin-top:8px">
+        <button id="sendOtp">发送验证码</button>
+        <button id="signOut" class="hide">退出登录</button>
+        <span id="who" class="muted"></span>
+      </div>
+      <div class="muted">去邮箱点开登录链接，回到本页会自动识别登录。</div>
+    </div>
+  </div>
+
+  <div id="app" class="hide">
+    <div class="card">
+      <div class="row-3">
+        <div>
+          <label>对象</label>
+          <input id="name" placeholder="如：黄某某">
+        </div>
+        <div>
+          <label>金额（元）</label>
+          <input id="amount" type="number" step="0.01" placeholder="例如 200">
+        </div>
+        <div>
+          <label>方向</label>
+          <select id="direction">
+            <option value="out">我给对方（放出/我还他）</option>
+            <option value="in">对方给我（收回/他还我）</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>时间</label>
+          <input id="time" type="datetime-local">
+        </div>
+        <div>
+          <label>标签（可选）</label>
+          <input id="tag" placeholder="临时周转/餐费">
+        </div>
+        <div style="grid-column:1/-1">
+          <label>备注（可选）</label>
+          <textarea id="note" rows="2" placeholder="写点说明，方便以后对账"></textarea>
+        </div>
+      </div>
+      <div class="toolbar" style="margin-top:8px">
+        <button id="add">保存流水</button>
+        <button id="exportCsv">导出CSV</button>
+        <span class="muted">净额 &gt; 0：对方欠我；净额 &lt; 0：我欠对方。</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <input id="qName" placeholder="按对象筛选">
+        <input id="qTag" placeholder="按标签筛选">
+        <input id="qFrom" type="date" title="开始日期">
+        <span class="muted">到</span>
+        <input id="qTo" type="date" title="结束日期">
+        <select id="sortBy">
+          <option value="timeDesc">按时间（新→旧）</option>
+          <option value="timeAsc">按时间（旧→新）</option>
+          <option value="amountDesc">按金额（高→低）</option>
+        </select>
+        <button id="reset">重置筛选</button>
+      </div>
+
+      <h3 style="margin:12px 0 6px">按人汇总</h3>
+      <div id="summary"></div>
+
+      <h3 style="margin:14px 0 6px">流水明细</h3>
+      <div style="overflow:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>时间</th><th>对象</th><th class="right">金额</th><th>方向</th><th>标签</th><th>备注</th><th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+(async () => {
+  // === 你的 Supabase 配置（已填好） ===
+  const SUPABASE_URL = "https://skiouwsmkvfstpgvaccb.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNraW91d3Nta3Zmc3RwZ3ZhY2NiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzNTAzMDYsImV4cCI6MjA3MTkyNjMwNn0.WGG05HtDdwC_O-Psswa3MaQBhFV_sEYbi8pnpHKM7_Q";
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // === 工具函数 ===
+  const $ = id => document.getElementById(id);
+  const fmt = n => (Number(n)||0).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const nowLocal = () => { const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,16); };
+  const escapeHtml = s => String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+
+  // === 登录区域 ===
+  async function refreshAuthUI(){
+    const { data: { user } } = await sb.auth.getUser();
+    if(user){
+      $('authCard').classList.add('hide');
+      $('app').classList.remove('hide');
+      $('signOut').classList.remove('hide');
+      $('who').textContent = `已登录：${user.email||user.id}`;
+      await loadAndRender();
+    }else{
+      $('authCard').classList.remove('hide');
+      $('app').classList.add('hide');
+      $('signOut').classList.add('hide');
+      $('who').textContent='';
+    }
+  }
+  $('sendOtp').onclick = async () => {
+    const email = $('email').value.trim();
+    if(!email) return alert('请填写邮箱');
+    const { error } = await sb.auth.signInWithOtp({ email });
+    if(error) alert(error.message); else alert('验证码登录链接已发到邮箱，点开后回到此页即可。');
+  };
+  $('signOut').onclick = async () => { await sb.auth.signOut(); await refreshAuthUI(); };
+
+  // === 记账 ===
+  $('time').value = nowLocal();
+
+  $('add').onclick = async () => {
+    const { data: { user } } = await sb.auth.getUser();
+    if(!user) return alert('请先登录');
+    const name = $('name').value.trim();
+    const amount = Number($('amount').value);
+    const dir = $('direction').value;
+    const ts = $('time').value || nowLocal();
+    const tag = $('tag').value.trim();
+    const note = $('note').value.trim();
+    if(!name) return alert('请填写对象姓名');
+    if(!(amount>0)) return alert('金额需为正数');
+
+    const { error } = await sb.from('ledger').insert({
+      user_id: user.id, name, amount, direction: dir,
+      time: new Date(ts).toISOString(), tag, note
+    });
+    if(error) return alert(error.message);
+    $('amount').value=''; $('note').value=''; $('tag').value='';
+    await loadAndRender();
+  };
+
+  async function delRow(id){
+    if(!confirm('删除这条流水？')) return;
+    const { error } = await sb.from('ledger').delete().eq('id', id);
+    if(error) return alert(error.message);
+    await loadAndRender();
+  }
+
+  async function editRow(id, row){
+    const amt = prompt('修改金额（元）：', row.amount);
+    if(amt===null) return;
+    const n = Number(amt); if(!(n>0)) return alert('金额需为正数');
+    const dir = prompt('方向：输入 out=我给对方, in=对方给我', row.direction);
+    if(dir!==null && !['out','in'].includes(dir)) return alert('方向只能是 out 或 in');
+    const t = prompt('时间（yyyy-MM-dd HH:mm）：', row.time.replace('T',' ').slice(0,16));
+    let iso = row.time;
+    if(t!==null){ const s=t.replace(' ','T'); if(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(s)) iso = new Date(s).toISOString(); }
+    const tag = prompt('标签：', row.tag||''); if(tag===null) return;
+    const note = prompt('备注：', row.note||''); if(note===null) return;
+
+    const { error } = await sb.from('ledger').update({
+      amount:n, direction: dir||row.direction, time: iso, tag, note
+    }).eq('id', id);
+    if(error) return alert(error.message);
+    await loadAndRender();
+  }
+
+  async function loadAndRender(){
+    const qn = $('qName').value.trim().toLowerCase();
+    const qt = $('qTag').value.trim().toLowerCase();
+    const qf = $('qFrom').value;
+    const qtod = $('qTo').value;
+
+    let { data:list, error } = await sb.from('ledger').select('*').order('time',{ascending:false});
+    if(error){ console.error(error); list=[]; }
+
+    list = list.filter(e=>{
+      if(qn && !e.name.toLowerCase().includes(qn)) return false;
+      if(qt && !(e.tag||'').toLowerCase().includes(qt)) return false;
+      if(qf && e.time.slice(0,10) < qf) return false;
+      if(qtod && e.time.slice(0,10) > qtod) return false;
+      return true;
+    });
+
+    const sortBy = $('sortBy').value;
+    if(sortBy==='timeAsc') list.sort((a,b)=>a.time.localeCompare(b.time));
+    if(sortBy==='amountDesc') list.sort((a,b)=>b.amount-a.amount);
+
+    // 汇总
+    const agg = {};
+    for(const e of list){
+      const sign = (e.direction==='out'? +1 : -1);
+      agg[e.name] = (agg[e.name]||0) + sign*Number(e.amount||0);
+    }
+    const summaryDiv = $('summary'); summaryDiv.innerHTML='';
+    const names = Object.keys(agg).sort((a,b)=>Math.abs(agg[b])-Math.abs(agg[a]));
+    if(!names.length){ summaryDiv.innerHTML = '<div class="muted">暂无数据</div>'; }
+    for(const n of names){
+      const v = agg[n];
+      const div = document.createElement('div');
+      div.style.margin='4px 0';
+      div.innerHTML = `<b>${escapeHtml(n)}</b>
+        <span class="pill ${v>=0?'pos':'neg'}">${v>=0?'对方欠我':'我欠对方'}：${fmt(Math.abs(v))}</span>`;
+      summaryDiv.appendChild(div);
+    }
+
+    // 明细
+    const tb = $('tbody'); tb.innerHTML='';
+    for(const e of list){
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${escapeHtml(e.time.replace('T',' ').slice(0,16))}</td>
+        <td>${escapeHtml(e.name)}</td>
+        <td class="right">${fmt(e.amount)}</td>
+        <td>${e.direction==='out'?'我给对方':'对方给我'}</td>
+        <td>${escapeHtml(e.tag||'')}</td>
+        <td>${escapeHtml(e.note||'')}</td>
+        <td class="actions">
+          <button onclick='editRow(${e.id}, ${JSON.stringify({amount:e.amount,direction:e.direction,time:e.time,tag:e.tag||"",note:e.note||""}).replace(/"/g,"&quot;")})'>编辑</button>
+          <button style="color:#b00020" onclick="delRow(${e.id})">删除</button>
+        </td>
+      `;
+      tb.appendChild(tr);
+    }
+  }
+
+  $('exportCsv').onclick = async () => {
+    let { data:list } = await sb.from('ledger').select('*').order('time',{ascending:false});
+    const rows = [['时间','对象','金额','方向','标签','备注']];
+    for(const e of (list||[])){
+      rows.push([e.time.replace('T',' ').slice(0,16), e.name, e.amount, e.direction==='out'?'我给对方':'对方给我', e.tag||'', (e.note||'').replace(/\n/g,' ')]);
+    }
+    const csv = rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob); const a=document.createElement('a');
+    a.href=url; a.download='ledger.csv'; a.click(); URL.revokeObjectURL(url);
+  };
+
+  ['qName','qTag','qFrom','qTo','sortBy'].forEach(id=>$(id).addEventListener('input', loadAndRender));
+  $('reset').onclick = ()=>{ $('qName').value=''; $('qTag').value=''; $('qFrom').value=''; $('qTo').value=''; $('sortBy').value='timeDesc'; loadAndRender(); };
+
+  sb.auth.onAuthStateChange(() => refreshAuthUI());
+  await refreshAuthUI();
+
+  // 暴露给按钮
+  window.editRow = editRow;
+  window.delRow = delRow;
+})();
+</script>
+</body>
+</html>
