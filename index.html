@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>流水记账</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  background:#f5f6f8;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:#222;
+}
+
+.wrap{
+  max-width:600px;
+  margin:auto;
+  padding:15px;
+}
+
+h2{
+  margin:8px 0 15px;
+}
+
+.card{
+  background:#fff;
+  border-radius:14px;
+  padding:15px;
+  margin-bottom:12px;
+  box-shadow:0 2px 8px #ddd;
+}
+
+input,
+select,
+button{
+  width:100%;
+  height:46px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  font-size:16px;
+  padding:0 12px;
+  margin:5px 0;
+}
+
+button{
+  background:#1677ff;
+  color:#fff;
+  border:0;
+  font-weight:bold;
+}
+
+.red{
+  background:#ff4d4f;
+}
+
+.search{
+  margin-bottom:12px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+}
+
+.stat{
+  text-align:center;
+  background:#f1f5ff;
+  padding:12px 5px;
+  border-radius:10px;
+}
+
+.stat b{
+  display:block;
+  margin-top:5px;
+  font-size:18px;
+}
+
+.table-wrap{
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+}
+
+th,
+td{
+  padding:9px 4px;
+  border-bottom:1px solid #eee;
+  text-align:center;
+  white-space:nowrap;
+}
+
+.del{
+  color:#f33;
+  font-size:13px;
+  cursor:pointer;
+}
+
+.empty{
+  text-align:center;
+  color:#999;
+  padding:25px 5px;
+}
+
+.total{
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid #eee;
+  text-align:right;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<h2>流水记账</h2>
+
+<!-- 输入 -->
+<div class="card">
+
+<input
+  id="name"
+  placeholder="姓名 / 备注"
+  autocomplete="off"
+>
+
+<input
+  id="amount"
+  type="number"
+  inputmode="decimal"
+  placeholder="金额"
+>
+
+<select id="type">
+  <option value="支出">支出</option>
+  <option value="收回">收回</option>
+  <option value="其他收入">其他收入</option>
+</select>
+
+<input
+  id="fee"
+  type="number"
+  inputmode="decimal"
+  placeholder="附加金额（没有就填0）"
+  value="0"
+>
+
+<button onclick="add()">保存记录</button>
+
+</div>
+
+
+<!-- 搜索和统计 -->
+<div class="card">
+
+<input
+  id="search"
+  class="search"
+  placeholder="🔎 搜索姓名 / 备注"
+  oninput="render()"
+  autocomplete="off"
+>
+
+<div class="stats">
+
+<div class="stat">
+支出
+<b id="out">0</b>
+</div>
+
+<div class="stat">
+收回
+<b id="back">0</b>
+</div>
+
+<div class="stat">
+附加
+<b id="fees">0</b>
+</div>
+
+</div>
+
+<div class="total">
+当前显示合计：<span id="total">0</span>
+</div>
+
+</div>
+
+
+<!-- 记录 -->
+<div class="card">
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+<tr>
+<th>时间</th>
+<th>姓名/备注</th>
+<th>类型</th>
+<th>金额</th>
+<th>附加</th>
+<th>操作</th>
+</tr>
+</thead>
+
+<tbody id="list"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+<!-- 清空 -->
+<div class="card">
+
+<button class="red" onclick="clearAll()">
+清空全部记录
+</button>
+
+</div>
+
+</div>
+
+
+<script>
+
+let data = JSON.parse(
+  localStorage.getItem("ledger") || "[]"
+);
+
+
+/* 保存数据 */
+
+function save(){
+
+  localStorage.setItem(
+    "ledger",
+    JSON.stringify(data)
+  );
+
+}
+
+
+/* 添加记录 */
+
+function add(){
+
+  let name =
+    document.getElementById("name").value.trim();
+
+  let amount =
+    Number(document.getElementById("amount").value);
+
+  let type =
+    document.getElementById("type").value;
+
+  let fee =
+    Number(document.getElementById("fee").value) || 0;
+
+
+  if(!amount){
+
+    alert("请输入金额");
+
+    return;
+  }
+
+
+  data.unshift({
+
+    time:new Date().toLocaleString(),
+
+    name:name || "—",
+
+    amount:amount,
+
+    type:type,
+
+    fee:fee
+
+  });
+
+
+  save();
+
+
+  /*
+   姓名故意不清空
+   方便连续记同一个人的流水
+  */
+
+  document.getElementById("amount").value="";
+
+  document.getElementById("fee").value="0";
+
+
+  render();
+
+}
+
+
+/* 删除单笔记录 */
+
+function del(index){
+
+  if(confirm("确定删除这条记录？")){
+
+    data.splice(index,1);
+
+    save();
+
+    render();
+
+  }
+
+}
+
+
+/* 清空全部 */
+
+function clearAll(){
+
+  if(data.length===0){
+
+    alert("目前没有记录");
+
+    return;
+  }
+
+
+  if(confirm("确定清空全部记录？此操作不能恢复。")){
+
+    data=[];
+
+    save();
+
+    render();
+
+  }
+
+}
+
+
+/* 显示记录 */
+
+function render(){
+
+  let keyword =
+    document
+    .getElementById("search")
+    .value
+    .trim()
+    .toLowerCase();
+
+
+  let html="";
+
+  let out=0;
+
+  let back=0;
+
+  let fees=0;
+
+  let total=0;
+
+  let count=0;
+
+
+  data.forEach((x,index)=>{
+
+    /*
+      搜索姓名或备注
+    */
+
+    if(
+      keyword &&
+      !String(x.name)
+      .toLowerCase()
+      .includes(keyword)
+    ){
+
+      return;
+
+    }
+
+
+    count++;
+
+
+    if(x.type==="支出"){
+
+      out += Number(x.amount);
+
+    }
+
+
+    if(x.type==="收回"){
+
+      back += Number(x.amount);
+
+    }
+
+
+    fees += Number(x.fee) || 0;
+
+    total += Number(x.amount);
+
+
+    html += `
+
+    <tr>
+
+      <td>
+        ${String(x.time).slice(5,16)}
+      </td>
+
+      <td>
+        ${escapeHtml(x.name)}
+      </td>
+
+      <td>
+        ${escapeHtml(x.type)}
+      </td>
+
+      <td>
+        ${x.amount}
+      </td>
+
+      <td>
+        ${x.fee}
+      </td>
+
+      <td>
+        <span
+          class="del"
+          onclick="del(${index})"
+        >
+          删除
+        </span>
+      </td>
+
+    </tr>
+
+    `;
+
+  });
+
+
+  if(count===0){
+
+    html=`
+
+    <tr>
+
+      <td
+        colspan="6"
+        class="empty"
+      >
+        没有找到记录
+      </td>
+
+    </tr>
+
+    `;
+
+  }
+
+
+  document
+  .getElementById("list")
+  .innerHTML=html;
+
+
+  document
+  .getElementById("out")
+  .textContent=out;
+
+
+  document
+  .getElementById("back")
+  .textContent=back;
+
+
+  document
+  .getElementById("fees")
+  .textContent=fees;
+
+
+  document
+  .getElementById("total")
+  .textContent=total;
+
+}
+
+
+/* 防止特殊字符影响页面 */
+
+function escapeHtml(text){
+
+  return String(text)
+
+    .replace(/&/g,"&amp;")
+
+    .replace(/</g,"&lt;")
+
+    .replace(/>/g,"&gt;")
+
+    .replace(/"/g,"&quot;")
+
+    .replace(/'/g,"&#039;");
+
+}
+
+
+/* 页面打开时读取记录 */
+
+render();
+
+</script>
+
+</body>
+</html>
