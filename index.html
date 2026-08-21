@@ -1,84 +1,155 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>流水记账</title>
 
 <style>
 *{
   box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
 }
 
 body{
   margin:0;
   background:#f5f6f8;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   color:#222;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",
+  "Hiragino Sans GB","Microsoft YaHei",Arial,sans-serif;
 }
 
-.wrap{
-  max-width:600px;
-  margin:auto;
-  padding:15px;
+.container{
+  width:100%;
+  max-width:760px;
+  margin:0 auto;
+  padding:14px;
 }
 
-h2{
-  margin:8px 0 15px;
+h1{
+  margin:4px 0 14px;
+  font-size:24px;
 }
 
 .card{
   background:#fff;
+  border:1px solid #e2e5e9;
   border-radius:14px;
-  padding:15px;
+  padding:14px;
   margin-bottom:12px;
-  box-shadow:0 2px 8px #ddd;
+  box-shadow:0 2px 8px rgba(0,0,0,.04);
 }
 
-input,
-select,
-button{
+label{
+  display:block;
+  margin-bottom:6px;
+  font-size:13px;
+  color:#666;
+}
+
+input,select,textarea,button{
   width:100%;
-  height:46px;
-  border:1px solid #ddd;
+  min-height:44px;
+  border:1px solid #d9dde3;
   border-radius:10px;
+  padding:9px 12px;
   font-size:16px;
-  padding:0 12px;
-  margin:5px 0;
+  background:#fff;
+  outline:none;
+}
+
+input:focus,select:focus,textarea:focus{
+  border-color:#1677ff;
+}
+
+textarea{
+  resize:vertical;
+  min-height:70px;
 }
 
 button{
+  border:0;
   background:#1677ff;
   color:#fff;
-  border:0;
-  font-weight:bold;
+  font-weight:600;
+  cursor:pointer;
 }
 
-.red{
+button:active{
+  opacity:.75;
+}
+
+button.gray{
+  background:#eef0f3;
+  color:#333;
+}
+
+button.red{
   background:#ff4d4f;
+  color:#fff;
 }
 
-.search{
-  margin-bottom:12px;
+button.green{
+  background:#16a34a;
+}
+
+.row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.row3{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:10px;
+}
+
+.search-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+}
+
+.search-row button{
+  width:auto;
+  min-width:80px;
 }
 
 .stats{
   display:grid;
-  grid-template-columns:1fr 1fr 1fr;
+  grid-template-columns:repeat(3,1fr);
   gap:8px;
 }
 
 .stat{
-  text-align:center;
-  background:#f1f5ff;
-  padding:12px 5px;
+  background:#f7f8fa;
   border-radius:10px;
+  padding:10px;
+  text-align:center;
 }
 
-.stat b{
-  display:block;
-  margin-top:5px;
-  font-size:18px;
+.stat-title{
+  color:#777;
+  font-size:13px;
+}
+
+.stat-value{
+  margin-top:4px;
+  font-size:19px;
+  font-weight:700;
+}
+
+.blue{
+  color:#1677ff;
+}
+
+.red-text{
+  color:#e53935;
+}
+
+.green-text{
+  color:#16a34a;
 }
 
 .table-wrap{
@@ -88,449 +159,1000 @@ button{
 table{
   width:100%;
   border-collapse:collapse;
+  min-width:650px;
+}
+
+th,td{
+  padding:10px 7px;
+  border-bottom:1px solid #eee;
+  text-align:left;
+  white-space:nowrap;
   font-size:14px;
 }
 
-th,
-td{
-  padding:9px 4px;
-  border-bottom:1px solid #eee;
-  text-align:center;
-  white-space:nowrap;
+th{
+  background:#fafafa;
+  color:#666;
 }
 
-.del{
-  color:#f33;
+.amount{
+  font-weight:700;
+}
+
+.pos{
+  color:#16a34a;
+}
+
+.neg{
+  color:#e53935;
+}
+
+.actions{
+  display:flex;
+  gap:6px;
+}
+
+.actions button{
+  width:auto;
+  min-width:52px;
+  min-height:34px;
+  padding:5px 9px;
   font-size:13px;
-  cursor:pointer;
 }
 
 .empty{
   text-align:center;
   color:#999;
-  padding:25px 5px;
+  padding:30px 10px;
 }
 
-.total{
+.name-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:8px;
+}
+
+.name-item{
+  border:1px solid #dfe3e8;
+  background:#f8f9fa;
+  color:#333;
+  border-radius:18px;
+  padding:6px 12px;
+  font-size:13px;
+  cursor:pointer;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+.topbar button{
+  width:auto;
+  min-height:38px;
+  padding:7px 12px;
+  font-size:14px;
+}
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  z-index:99;
+}
+
+.modal-box{
+  width:100%;
+  max-width:500px;
+  background:#fff;
+  border-radius:16px;
+  padding:18px;
+}
+
+.modal-title{
+  font-size:19px;
+  font-weight:700;
+  margin-bottom:14px;
+}
+
+.modal-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
   margin-top:12px;
-  padding-top:12px;
-  border-top:1px solid #eee;
-  text-align:right;
-  font-weight:bold;
+}
+
+.small{
+  font-size:12px;
+  color:#888;
+}
+
+@media(max-width:600px){
+  .row3{
+    grid-template-columns:1fr;
+  }
+
+  .stats{
+    grid-template-columns:1fr 1fr 1fr;
+  }
+
+  .container{
+    padding:10px;
+  }
+
+  h1{
+    font-size:22px;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<div class="wrap">
+<div class="container">
 
-<h2>流水记账</h2>
+  <h1>流水记账</h1>
 
-<!-- 输入 -->
-<div class="card">
+  <!-- 录入 -->
+  <div class="card">
 
-<input
-  id="name"
-  placeholder="姓名 / 备注"
-  autocomplete="off"
->
+    <div class="row">
+      <div>
+        <label>姓名</label>
+        <input id="name" type="text" placeholder="输入姓名">
+      </div>
 
-<input
-  id="amount"
-  type="number"
-  inputmode="decimal"
-  placeholder="金额"
->
+      <div>
+        <label>类型</label>
+        <select id="type">
+          <option value="借款">借款</option>
+          <option value="还款">还款</option>
+          <option value="其他">其他</option>
+        </select>
+      </div>
+    </div>
 
-<select id="type">
-  <option value="支出">支出</option>
-  <option value="收回">收回</option>
-  <option value="其他收入">其他收入</option>
-</select>
+    <div style="height:10px"></div>
 
-<input
-  id="fee"
-  type="number"
-  inputmode="decimal"
-  placeholder="附加金额（没有就填0）"
-  value="0"
->
+    <div class="row">
+      <div>
+        <label>金额</label>
+        <input id="amount" type="number" inputmode="decimal" placeholder="输入金额">
+      </div>
 
-<button onclick="add()">保存记录</button>
+      <div>
+        <label>日期</label>
+        <input id="date" type="datetime-local">
+      </div>
+    </div>
+
+    <div style="height:10px"></div>
+
+    <label>备注</label>
+    <textarea id="remark" placeholder="可以填写备注"></textarea>
+
+    <div style="height:10px"></div>
+
+    <button onclick="addRecord()">保存记录</button>
+
+    <div class="small" style="margin-top:8px">
+      姓名会自动保留在输入框，下次打开网页也会保留。
+    </div>
+
+    <div id="nameList" class="name-list"></div>
+
+  </div>
+
+
+  <!-- 搜索 -->
+  <div class="card">
+
+    <div class="topbar">
+      <strong>搜索流水</strong>
+      <button class="gray" onclick="clearSearch()">清除搜索</button>
+    </div>
+
+    <div class="search-row">
+      <input
+        id="search"
+        type="search"
+        placeholder="搜索姓名、备注、类型..."
+        oninput="render()"
+      >
+      <button onclick="render()">搜索</button>
+    </div>
+
+  </div>
+
+
+  <!-- 统计 -->
+  <div class="card">
+
+    <div class="stats">
+
+      <div class="stat">
+        <div class="stat-title">借款</div>
+        <div id="totalBorrow" class="stat-value red-text">0.00</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-title">还款</div>
+        <div id="totalRepay" class="stat-value green-text">0.00</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-title">余额</div>
+        <div id="balance" class="stat-value blue">0.00</div>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- 流水 -->
+  <div class="card">
+
+    <div class="topbar">
+      <strong>流水记录</strong>
+      <button class="red" onclick="clearAll()">清空全部</button>
+    </div>
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>时间</th>
+            <th>姓名</th>
+            <th>类型</th>
+            <th>金额</th>
+            <th>备注</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+
+        <tbody id="recordBody"></tbody>
+
+      </table>
+
+    </div>
+
+    <div id="empty" class="empty">
+      暂无流水记录
+    </div>
+
+  </div>
 
 </div>
 
 
-<!-- 搜索和统计 -->
-<div class="card">
+<!-- 编辑窗口 -->
+<div id="modal" class="modal">
 
-<input
-  id="search"
-  class="search"
-  placeholder="🔎 搜索姓名 / 备注"
-  oninput="render()"
-  autocomplete="off"
->
+  <div class="modal-box">
 
-<div class="stats">
+    <div class="modal-title">修改记录</div>
 
-<div class="stat">
-支出
-<b id="out">0</b>
-</div>
+    <input type="hidden" id="editId">
 
-<div class="stat">
-收回
-<b id="back">0</b>
-</div>
+    <label>姓名</label>
+    <input id="editName">
 
-<div class="stat">
-附加
-<b id="fees">0</b>
-</div>
+    <div style="height:10px"></div>
 
-</div>
+    <label>类型</label>
+    <select id="editType">
+      <option value="借款">借款</option>
+      <option value="还款">还款</option>
+      <option value="其他">其他</option>
+    </select>
 
-<div class="total">
-当前显示合计：<span id="total">0</span>
-</div>
+    <div style="height:10px"></div>
 
-</div>
+    <label>金额</label>
+    <input id="editAmount" type="number" inputmode="decimal">
 
+    <div style="height:10px"></div>
 
-<!-- 记录 -->
-<div class="card">
+    <label>日期</label>
+    <input id="editDate" type="datetime-local">
 
-<div class="table-wrap">
+    <div style="height:10px"></div>
 
-<table>
+    <label>备注</label>
+    <textarea id="editRemark"></textarea>
 
-<thead>
-<tr>
-<th>时间</th>
-<th>姓名/备注</th>
-<th>类型</th>
-<th>金额</th>
-<th>附加</th>
-<th>操作</th>
-</tr>
-</thead>
+    <div class="modal-actions">
+      <button class="gray" onclick="closeModal()">取消</button>
+      <button onclick="saveEdit()">保存修改</button>
+    </div>
 
-<tbody id="list"></tbody>
-
-</table>
-
-</div>
-
-</div>
-
-
-<!-- 清空 -->
-<div class="card">
-
-<button class="red" onclick="clearAll()">
-清空全部记录
-</button>
-
-</div>
+  </div>
 
 </div>
 
 
 <script>
 
-let data = JSON.parse(
-  localStorage.getItem("ledger") || "[]"
-);
+const STORAGE_KEY = "ledger_records_v1";
+const NAME_KEY = "ledger_last_name";
+
+let records = [];
 
 
-/* 保存数据 */
+// =========================
+// 初始化
+// =========================
 
-function save(){
+function loadData(){
+
+  try{
+    const saved = localStorage.getItem(STORAGE_KEY);
+
+    if(saved){
+      records = JSON.parse(saved);
+    }
+  }catch(e){
+    records = [];
+  }
+
+  const lastName = localStorage.getItem(NAME_KEY);
+
+  if(lastName){
+    document.getElementById("name").value = lastName;
+  }
+
+  setNow();
+
+  render();
+  renderNames();
+}
+
+
+// =========================
+// 当前时间
+// =========================
+
+function setNow(){
+
+  const input = document.getElementById("date");
+
+  if(!input.value){
+
+    const d = new Date();
+
+    const year = d.getFullYear();
+    const month = String(d.getMonth()+1).padStart(2,"0");
+    const day = String(d.getDate()).padStart(2,"0");
+    const hour = String(d.getHours()).padStart(2,"0");
+    const minute = String(d.getMinutes()).padStart(2,"0");
+
+    input.value =
+      `${year}-${month}-${day}T${hour}:${minute}`;
+  }
+}
+
+
+// =========================
+// 保存数据
+// =========================
+
+function saveData(){
 
   localStorage.setItem(
-    "ledger",
-    JSON.stringify(data)
+    STORAGE_KEY,
+    JSON.stringify(records)
   );
 
 }
 
 
-/* 添加记录 */
+// =========================
+// 新增记录
+// =========================
 
-function add(){
+function addRecord(){
 
-  let name =
+  const name =
     document.getElementById("name").value.trim();
 
-  let amount =
-    Number(document.getElementById("amount").value);
-
-  let type =
+  const type =
     document.getElementById("type").value;
 
-  let fee =
-    Number(document.getElementById("fee").value) || 0;
+  const amount =
+    parseFloat(document.getElementById("amount").value);
+
+  const date =
+    document.getElementById("date").value;
+
+  const remark =
+    document.getElementById("remark").value.trim();
 
 
-  if(!amount){
+  if(!name){
+    alert("请输入姓名");
+    return;
+  }
 
-    alert("请输入金额");
-
+  if(!amount || amount <= 0){
+    alert("请输入正确的金额");
     return;
   }
 
 
-  data.unshift({
+  const record = {
 
-    time:new Date().toLocaleString(),
+    id: Date.now(),
 
-    name:name || "—",
-
-    amount:amount,
+    name:name,
 
     type:type,
 
-    fee:fee
+    amount:amount,
 
-  });
+    date:date || new Date().toISOString(),
+
+    remark:remark
+
+  };
 
 
-  save();
+  records.unshift(record);
+
+  saveData();
 
 
-  /*
-   姓名故意不清空
-   方便连续记同一个人的流水
-  */
+  // 保留姓名
+  localStorage.setItem(NAME_KEY,name);
 
-  document.getElementById("amount").value="";
+  // 姓名输入框继续保留
+  document.getElementById("name").value = name;
 
-  document.getElementById("fee").value="0";
+  // 清空金额和备注
+  document.getElementById("amount").value = "";
+  document.getElementById("remark").value = "";
 
+  setNow();
+
+  render();
+  renderNames();
+
+}
+
+
+// =========================
+// 搜索
+// =========================
+
+function clearSearch(){
+
+  document.getElementById("search").value = "";
 
   render();
 
 }
 
 
-/* 删除单笔记录 */
+// =========================
+// 显示流水
+// =========================
 
-function del(index){
+function render(){
 
-  if(confirm("确定删除这条记录？")){
+  const tbody =
+    document.getElementById("recordBody");
 
-    data.splice(index,1);
+  const empty =
+    document.getElementById("empty");
 
-    save();
+  const keyword =
+    document.getElementById("search").value
+      .trim()
+      .toLowerCase();
 
-    render();
+
+  let list = records.filter(record => {
+
+    if(!keyword){
+      return true;
+    }
+
+    return (
+
+      String(record.name).toLowerCase().includes(keyword) ||
+
+      String(record.type).toLowerCase().includes(keyword) ||
+
+      String(record.remark).toLowerCase().includes(keyword)
+
+    );
+
+  });
+
+
+  tbody.innerHTML = "";
+
+
+  if(list.length === 0){
+
+    empty.style.display = "block";
+
+  }else{
+
+    empty.style.display = "none";
+
+
+    list.forEach(record => {
+
+      const tr =
+        document.createElement("tr");
+
+
+      const dateText =
+        formatDate(record.date);
+
+
+      let amountClass = "";
+
+      if(record.type === "借款"){
+        amountClass = "neg";
+      }
+
+      if(record.type === "还款"){
+        amountClass = "pos";
+      }
+
+
+      const sign =
+        record.type === "借款"
+          ? "+"
+          : record.type === "还款"
+            ? "-"
+            : "";
+
+
+      tr.innerHTML = `
+
+        <td>${escapeHtml(dateText)}</td>
+
+        <td>${escapeHtml(record.name)}</td>
+
+        <td>${escapeHtml(record.type)}</td>
+
+        <td class="amount ${amountClass}">
+          ${sign}${Number(record.amount).toFixed(2)}
+        </td>
+
+        <td>${escapeHtml(record.remark || "")}</td>
+
+        <td>
+          <div class="actions">
+
+            <button
+              class="gray"
+              onclick="editRecord(${record.id})">
+              修改
+            </button>
+
+            <button
+              class="red"
+              onclick="deleteRecord(${record.id})">
+              删除
+            </button>
+
+          </div>
+        </td>
+
+      `;
+
+
+      tbody.appendChild(tr);
+
+    });
 
   }
+
+
+  updateStats(list);
 
 }
 
 
-/* 清空全部 */
+// =========================
+// 统计
+// =========================
+
+function updateStats(list){
+
+  let borrow = 0;
+  let repay = 0;
+
+
+  list.forEach(record => {
+
+    const amount =
+      Number(record.amount) || 0;
+
+
+    if(record.type === "借款"){
+      borrow += amount;
+    }
+
+    if(record.type === "还款"){
+      repay += amount;
+    }
+
+  });
+
+
+  const balance =
+    borrow - repay;
+
+
+  document.getElementById("totalBorrow")
+    .textContent = borrow.toFixed(2);
+
+  document.getElementById("totalRepay")
+    .textContent = repay.toFixed(2);
+
+  document.getElementById("balance")
+    .textContent = balance.toFixed(2);
+
+}
+
+
+// =========================
+// 删除单条记录
+// =========================
+
+function deleteRecord(id){
+
+  const record =
+    records.find(item => item.id === id);
+
+  if(!record){
+    return;
+  }
+
+
+  const ok =
+    confirm(
+      `确定删除「${record.name}」这条${record.type}记录吗？`
+    );
+
+
+  if(!ok){
+    return;
+  }
+
+
+  records =
+    records.filter(item => item.id !== id);
+
+
+  saveData();
+
+  render();
+  renderNames();
+
+}
+
+
+// =========================
+// 修改记录
+// =========================
+
+function editRecord(id){
+
+  const record =
+    records.find(item => item.id === id);
+
+  if(!record){
+    return;
+  }
+
+
+  document.getElementById("editId").value =
+    record.id;
+
+  document.getElementById("editName").value =
+    record.name;
+
+  document.getElementById("editType").value =
+    record.type;
+
+  document.getElementById("editAmount").value =
+    record.amount;
+
+  document.getElementById("editDate").value =
+    record.date;
+
+  document.getElementById("editRemark").value =
+    record.remark || "";
+
+
+  document.getElementById("modal").style.display =
+    "flex";
+
+}
+
+
+// =========================
+// 保存修改
+// =========================
+
+function saveEdit(){
+
+  const id =
+    Number(document.getElementById("editId").value);
+
+
+  const record =
+    records.find(item => item.id === id);
+
+
+  if(!record){
+    return;
+  }
+
+
+  const name =
+    document.getElementById("editName").value.trim();
+
+  const type =
+    document.getElementById("editType").value;
+
+  const amount =
+    parseFloat(document.getElementById("editAmount").value);
+
+  const date =
+    document.getElementById("editDate").value;
+
+  const remark =
+    document.getElementById("editRemark").value.trim();
+
+
+  if(!name){
+    alert("请输入姓名");
+    return;
+  }
+
+
+  if(!amount || amount <= 0){
+    alert("请输入正确的金额");
+    return;
+  }
+
+
+  record.name = name;
+  record.type = type;
+  record.amount = amount;
+  record.date = date;
+  record.remark = remark;
+
+
+  saveData();
+
+  localStorage.setItem(NAME_KEY,name);
+
+  document.getElementById("name").value = name;
+
+  closeModal();
+
+  render();
+  renderNames();
+
+}
+
+
+// =========================
+// 关闭编辑
+// =========================
+
+function closeModal(){
+
+  document.getElementById("modal").style.display =
+    "none";
+
+}
+
+
+// =========================
+// 清空全部
+// =========================
 
 function clearAll(){
 
-  if(data.length===0){
+  if(records.length === 0){
 
-    alert("目前没有记录");
+    alert("现在没有记录");
 
     return;
   }
 
 
-  if(confirm("确定清空全部记录？此操作不能恢复。")){
+  const ok =
+    confirm(
+      "确定要删除全部流水记录吗？此操作不能恢复。"
+    );
 
-    data=[];
 
-    save();
-
-    render();
-
+  if(!ok){
+    return;
   }
+
+
+  records = [];
+
+  saveData();
+
+  render();
+  renderNames();
 
 }
 
 
-/* 显示记录 */
+// =========================
+// 姓名快捷选择
+// =========================
 
-function render(){
+function renderNames(){
 
-  let keyword =
-    document
-    .getElementById("search")
-    .value
-    .trim()
-    .toLowerCase();
+  const box =
+    document.getElementById("nameList");
 
 
-  let html="";
-
-  let out=0;
-
-  let back=0;
-
-  let fees=0;
-
-  let total=0;
-
-  let count=0;
+  const names = [
+    ...new Set(
+      records
+        .map(item => item.name)
+        .filter(Boolean)
+    )
+  ];
 
 
-  data.forEach((x,index)=>{
-
-    /*
-      搜索姓名或备注
-    */
-
-    if(
-      keyword &&
-      !String(x.name)
-      .toLowerCase()
-      .includes(keyword)
-    ){
-
-      return;
-
-    }
+  box.innerHTML = "";
 
 
-    count++;
+  names.slice(0,20).forEach(name => {
+
+    const button =
+      document.createElement("button");
 
 
-    if(x.type==="支出"){
+    button.className = "name-item";
 
-      out += Number(x.amount);
-
-    }
+    button.textContent = name;
 
 
-    if(x.type==="收回"){
+    button.onclick = function(){
 
-      back += Number(x.amount);
+      document.getElementById("name").value =
+        name;
 
-    }
+      localStorage.setItem(NAME_KEY,name);
 
-
-    fees += Number(x.fee) || 0;
-
-    total += Number(x.amount);
+    };
 
 
-    html += `
-
-    <tr>
-
-      <td>
-        ${String(x.time).slice(5,16)}
-      </td>
-
-      <td>
-        ${escapeHtml(x.name)}
-      </td>
-
-      <td>
-        ${escapeHtml(x.type)}
-      </td>
-
-      <td>
-        ${x.amount}
-      </td>
-
-      <td>
-        ${x.fee}
-      </td>
-
-      <td>
-        <span
-          class="del"
-          onclick="del(${index})"
-        >
-          删除
-        </span>
-      </td>
-
-    </tr>
-
-    `;
+    box.appendChild(button);
 
   });
 
+}
 
-  if(count===0){
 
-    html=`
+// =========================
+// 日期格式化
+// =========================
 
-    <tr>
+function formatDate(value){
 
-      <td
-        colspan="6"
-        class="empty"
-      >
-        没有找到记录
-      </td>
-
-    </tr>
-
-    `;
-
+  if(!value){
+    return "";
   }
 
 
-  document
-  .getElementById("list")
-  .innerHTML=html;
+  const d = new Date(value);
 
 
-  document
-  .getElementById("out")
-  .textContent=out;
+  if(Number.isNaN(d.getTime())){
+    return value;
+  }
 
 
-  document
-  .getElementById("back")
-  .textContent=back;
+  const y =
+    d.getFullYear();
+
+  const m =
+    String(d.getMonth()+1).padStart(2,"0");
+
+  const day =
+    String(d.getDate()).padStart(2,"0");
+
+  const h =
+    String(d.getHours()).padStart(2,"0");
+
+  const min =
+    String(d.getMinutes()).padStart(2,"0");
 
 
-  document
-  .getElementById("fees")
-  .textContent=fees;
-
-
-  document
-  .getElementById("total")
-  .textContent=total;
+  return `${y}-${m}-${day} ${h}:${min}`;
 
 }
 
 
-/* 防止特殊字符影响页面 */
+// =========================
+// 防止特殊字符破坏页面
+// =========================
 
 function escapeHtml(text){
 
   return String(text)
-
     .replace(/&/g,"&amp;")
-
     .replace(/</g,"&lt;")
-
     .replace(/>/g,"&gt;")
-
     .replace(/"/g,"&quot;")
-
     .replace(/'/g,"&#039;");
 
 }
 
 
-/* 页面打开时读取记录 */
+// =========================
+// 点击弹窗外部关闭
+// =========================
 
-render();
+document.getElementById("modal")
+  .addEventListener("click",function(e){
+
+    if(e.target === this){
+      closeModal();
+    }
+
+  });
+
+
+// =========================
+// 姓名输入自动保存
+// =========================
+
+document.getElementById("name")
+  .addEventListener("input",function(){
+
+    localStorage.setItem(
+      NAME_KEY,
+      this.value
+    );
+
+  });
+
+
+// =========================
+// 回车搜索
+// =========================
+
+document.getElementById("search")
+  .addEventListener("keydown",function(e){
+
+    if(e.key === "Enter"){
+      render();
+    }
+
+  });
+
+
+// 启动
+loadData();
 
 </script>
 
