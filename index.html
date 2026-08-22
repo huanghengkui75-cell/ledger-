@@ -4,133 +4,637 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>今晚流水记账</title>
+
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#f3f5f8;color:#17202b;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
-.app{max-width:760px;margin:auto;padding:12px 12px 40px}
-h1{font-size:25px;margin:4px 4px 4px;font-weight:850}
-.topbar{display:flex;justify-content:space-between;align-items:center;margin:0 4px 14px;color:#7c8793;font-size:13px}
-.card{background:#fff;border:1px solid #e3e7ed;border-radius:18px;box-shadow:0 5px 18px #1923320b;overflow:hidden;margin-bottom:12px}
-.form{padding:14px}.title{font-size:18px;font-weight:850;margin-bottom:10px}
-input{width:100%;height:50px;border:1px solid #d9dee6;border-radius:13px;background:#fff;padding:0 14px;font-size:16px;outline:0}
-input:focus{border-color:#2878f5;box-shadow:0 0 0 3px #2878f518}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-button{height:50px;border:0;border-radius:13px;background:#2878f5;color:#fff;font-size:16px;font-weight:800}
-button.gray{background:#edf1f5;color:#29313b}button.dark{background:#171e2a}
-button.red{background:#fff0f0;color:#d94646;border:1px solid #ffd5d5}
-.names{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.name{padding:9px 13px;border:1px solid #e0e5eb;background:#fafbfc;border-radius:11px;font-weight:650}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#e5e9ee}
-.stat{background:#fff;padding:14px}.stat small{color:#7d8792;font-size:13px}.stat b{display:block;font-size:23px;margin-top:4px}
-.stat.red b{color:#df4c4c}.stat.green b{color:#19915a}
-.head{display:flex;justify-content:space-between;align-items:center;padding:14px;border-bottom:1px solid #e7ebef}
-.head b{font-size:18px}.head span{font-size:13px;color:#8a949f}
-.group{margin:12px;border:1px solid #e0e5eb;border-radius:14px;overflow:hidden}
-.grouphead{padding:12px 13px;background:#f7f9fb;display:flex;justify-content:space-between;font-weight:800}
-.tx{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:12px 13px;border-top:1px solid #edf0f3}
-.txmain{font-size:15px;line-height:1.45}.time{font-size:12px;color:#929ba6}.amt{font-size:18px;font-weight:850}.minus{color:#df4c4c}.plus{color:#19915a}
-.txbtn{height:34px;width:auto;padding:0 9px;border-radius:9px;background:#fff0f0;color:#d94646;font-size:13px;border:1px solid #ffd5d5}
-.sub{padding:9px 13px;text-align:right;background:#fbfcfd;border-top:1px solid #e7ebef;font-size:13px;font-weight:750}
-.empty{padding:28px 14px;text-align:center;color:#929ba5}
-.tools{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:12px}
-.tools button{height:44px;font-size:14px}
-.notice{font-size:12px;color:#8a949f;margin-top:8px;line-height:1.5}
-.principal{display:grid;grid-template-columns:1fr 1fr}
-.principal>div{padding:14px;border-right:1px solid #e7ebef}
-.principal>div:last-child{border:0}
-.money{font-size:24px;font-weight:900;margin-top:4px}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#171e2a;color:white;padding:11px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;z-index:10}
-.toast.show{opacity:1}
+*{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+:root{
+    --bg:#f5f7fa;
+    --card:rgba(255,255,255,.97);
+    --ink:#121826;
+    --muted:#8b95a5;
+    --line:#e8ebf0;
+    --blue:#315ee8;
+    --blue2:#173fba;
+    --green:#159463;
+    --greenbg:#edf9f3;
+    --red:#d94a52;
+}
+
+body{
+    margin:0;
+    color:var(--ink);
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "SF Pro Display",
+        "PingFang SC",
+        "Microsoft YaHei",
+        sans-serif;
+
+    background:
+        radial-gradient(
+            700px 300px at 50% -80px,
+            rgba(49,94,232,.13),
+            transparent 70%
+        ),
+        linear-gradient(
+            180deg,
+            #fafbfc 0,
+            #f1f4f8 100%
+        );
+}
+
+.app{
+    max-width:760px;
+    margin:auto;
+    padding:15px 12px 44px;
+}
+
+h1{
+    margin:3px 4px 2px;
+    font-size:27px;
+    letter-spacing:-.8px;
+    font-weight:900;
+}
+
+.topbar{
+    margin:0 5px 17px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    color:#98a1af;
+    font-size:12px;
+}
+
+.topbar b{
+    font-size:12px;
+    color:#5e6878;
+    font-variant-numeric:tabular-nums;
+}
+
+.card{
+    background:var(--card);
+    border:1px solid rgba(225,230,237,.9);
+    border-radius:22px;
+    overflow:hidden;
+    margin-bottom:15px;
+
+    box-shadow:
+        0 12px 34px rgba(20,31,50,.065),
+        0 2px 6px rgba(20,31,50,.035);
+
+    backdrop-filter:blur(10px);
+}
+
+.form{
+    padding:18px;
+}
+
+.title{
+    font-size:18px;
+    font-weight:900;
+    margin-bottom:12px;
+    letter-spacing:-.25px;
+}
+
+/* 客户 + 新增流水 */
+.operation-shell{
+    padding:0;
+    overflow:hidden;
+}
+
+.operation-shell .customer-form,
+.operation-shell .entry-form{
+    margin:0!important;
+    border:0!important;
+    box-shadow:none!important;
+}
+
+.operation-shell .entry-form{
+    border-top:1px solid #e8ebf0!important;
+    background:
+        linear-gradient(
+            180deg,
+            #fff,
+            #fbfcfe
+        );
+}
+
+/* 输入框 */
+
+input{
+    width:100%;
+    height:54px;
+
+    border:1px solid #dce2ea;
+    border-radius:16px;
+
+    background:#fafbfd;
+
+    padding:0 16px;
+
+    outline:0;
+
+    font-size:16px;
+    color:var(--ink);
+
+    transition:.2s;
+
+    box-shadow:
+        inset 0 1px 2px rgba(0,0,0,.018);
+}
+
+input:focus{
+    background:#fff;
+
+    border-color:#6f98f5;
+
+    box-shadow:
+        0 0 0 4px rgba(49,94,232,.09);
+}
+
+input::placeholder{
+    color:#adb5c1;
+}
+
+.row2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:11px;
+}
+
+/* 按钮 */
+
+.btns{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:11px;
+    margin-top:11px;
+}
+
+button{
+    height:53px;
+
+    border:0;
+    border-radius:16px;
+
+    color:#fff;
+
+    font-size:16px;
+    font-weight:850;
+
+    background:
+        linear-gradient(
+            145deg,
+            #4777f5,
+            #234fcf
+        );
+
+    box-shadow:
+        0 8px 17px rgba(35,79,207,.18);
+
+    transition:.15s;
+}
+
+button:active{
+    transform:scale(.98);
+}
+
+button.gray{
+    background:
+        linear-gradient(
+            180deg,
+            #f1f3f6,
+            #e9edf2
+        );
+
+    color:#3b4555;
+
+    box-shadow:none;
+}
+
+button.dark{
+    background:
+        linear-gradient(
+            145deg,
+            #252d3b,
+            #101722
+        );
+
+    box-shadow:
+        0 8px 17px rgba(16,23,34,.16);
+}
+
+/* 客户名字 */
+
+.names{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:11px;
+}
+
+.name{
+    height:41px;
+
+    padding:0 15px;
+
+    border-radius:13px;
+
+    border:1px solid #bfe6d0;
+
+    background:
+        linear-gradient(
+            145deg,
+            #f6fdf9,
+            #e9f8f0
+        );
+
+    color:#118958;
+
+    font-weight:850;
+
+    box-shadow:
+        0 3px 9px rgba(21,148,99,.08);
+}
+
+.name:active{
+    background:#dff4e8;
+}
+
+/* 本金 */
+
+.principal{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+
+    background:
+        linear-gradient(
+            180deg,
+            #fbfcfe,
+            #f7f9fb
+        );
+}
+
+.principal>div{
+    padding:18px;
+    border-right:1px solid #e7ebf0;
+}
+
+.principal>div:last-child{
+    border:0;
+}
+
+.principal small{
+    font-size:12px;
+    color:var(--muted);
+}
+
+.money{
+    font-size:27px;
+    font-weight:900;
+    letter-spacing:-.7px;
+    margin-top:5px;
+}
+
+.notice{
+    margin-top:10px;
+
+    color:#8b95a3;
+
+    font-size:12px;
+
+    line-height:1.55;
+}
+
+/* 标题 */
+
+.head{
+    padding:16px 18px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    border-bottom:1px solid #e9edf2;
+
+    background:
+        linear-gradient(
+            180deg,
+            #fff,
+            #fcfdff
+        );
+}
+
+.head b{
+    font-size:19px;
+    font-weight:900;
+}
+
+.head span{
+    font-size:12px;
+    color:#9aa3af;
+}
+
+/* 统计 */
+
+.stats{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+
+    gap:1px;
+
+    background:#e8ecf1;
+}
+
+.stat{
+    padding:17px 18px;
+    background:#fff;
+}
+
+.stat small{
+    font-size:12px;
+    color:#8b95a3;
+}
+
+.stat b{
+    display:block;
+
+    margin-top:5px;
+
+    font-size:25px;
+
+    font-weight:900;
+
+    font-variant-numeric:tabular-nums;
+}
+
+.stat.red b{
+    color:var(--red);
+}
+
+.stat.green b{
+    color:var(--green);
+}
+
+/* 客户流水 */
+
+.group{
+    margin:12px;
+
+    border:1px solid #e1e6ed;
+
+    border-radius:17px;
+
+    overflow:hidden;
+
+    box-shadow:
+        0 4px 13px rgba(23,32,50,.035);
+}
+
+.grouphead{
+    padding:14px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #fafbfd,
+            #f5f7fa
+        );
+
+    display:flex;
+    justify-content:space-between;
+
+    font-weight:900;
+}
+
+.tx{
+    display:grid;
+
+    grid-template-columns:
+        1fr
+        auto
+        auto;
+
+    gap:9px;
+
+    align-items:center;
+
+    padding:13px 14px;
+
+    border-top:1px solid #edf0f4;
+}
+
+.txmain{
+    font-size:15px;
+    line-height:1.5;
+}
+
+.time{
+    font-size:12px;
+    color:#99a2af;
+}
+
+.amt{
+    font-size:19px;
+    font-weight:900;
+    font-variant-numeric:tabular-nums;
+}
+
+.minus{
+    color:var(--red);
+}
+
+.plus{
+    color:var(--green);
+}
+
+/* 删除 */
+
+.txbtn{
+    width:auto;
+
+    height:34px;
+
+    padding:0 10px;
+
+    border-radius:10px;
+
+    background:#fff3f3;
+
+    color:#d44850;
+
+    border:1px solid #ffd9da;
+
+    box-shadow:none;
+
+    font-size:12px;
+}
+
+/* 小计 */
+
+.sub{
+    padding:10px 14px;
+
+    background:#fafbfd;
+
+    border-top:1px solid #e7ebef;
+
+    text-align:right;
+
+    color:#5e6877;
+
+    font-size:13px;
+
+    font-weight:800;
+}
+
+/* 没有流水 */
+
+.empty{
+    padding:35px 14px;
+
+    text-align:center;
+
+    color:#9aa3af;
+}
+
+/* 底部工具 */
+
+.tools{
+    display:grid;
+
+    grid-template-columns:
+        1fr 1fr 1fr;
+
+    gap:8px;
+
+    padding:12px;
+}
+
+.tools button{
+    height:43px;
+    font-size:13px;
+}
+
+/* 提示 */
+
+.toast{
+    position:fixed;
+
+    left:50%;
+    bottom:25px;
+
+    transform:
+        translateX(-50%);
+
+    padding:12px 18px;
+
+    border-radius:15px;
+
+    background:#121826;
+
+    color:#fff;
+
+    font-size:14px;
+
+    box-shadow:
+        0 12px 28px rgba(18,24,38,.22);
+
+    opacity:0;
+
+    pointer-events:none;
+
+    transition:.2s;
+
+    z-index:20;
+}
+
+.toast.show{
+    opacity:1;
+}
+
+/* 手机 */
+
 @media(max-width:430px){
-.row2{grid-template-columns:1fr}
-.principal{grid-template-columns:1fr 1fr}
-.tx{grid-template-columns:1fr auto auto}
+
+    .app{
+        padding:12px 10px 35px;
+    }
+
+    h1{
+        font-size:25px;
+    }
+
+    .row2{
+        grid-template-columns:1fr;
+    }
+
+    .principal>div{
+        padding:16px 14px;
+    }
+
+    .money{
+        font-size:24px;
+    }
+
 }
 </style>
 </head>
 
+
 <body>
+
 <div class="app">
 
 <h1>今晚流水记账</h1>
 
 <div class="topbar">
+
 <span>实时系统时间</span>
+
 <b id="clock">--</b>
+
 </div>
 
-<!-- 客户 -->
-<div class="card form">
-<div class="title">客户</div>
 
-<input id="customer"
+<!-- 客户 + 新增流水 -->
+
+<div class="card operation-shell">
+
+
+<!-- 客户 -->
+
+<div class="form customer-form">
+
+<div class="title">
+客户
+</div>
+
+<input
+id="customer"
 placeholder="输入或选择客户姓名"
 autocomplete="off">
 
-<div id="names" class="names"></div>
+<div
+id="names"
+class="names">
 </div>
 
-
-<!-- 本金 -->
-<div class="card">
-
-<div class="principal">
-
-<div>
-<small>今晚带入本金</small>
-<div class="money" id="capitalIn">¥0</div>
-</div>
-
-<div>
-<small>当前本金余额</small>
-<div class="money" id="capitalNow">¥0</div>
-</div>
-
-</div>
-
-<div class="form" style="border-top:1px solid #e7ebef">
-
-<div class="title">本金操作</div>
-
-<div class="row2">
-
-<input
-id="capitalAmount"
-type="number"
-inputmode="decimal"
-placeholder="输入本金金额">
-
-<input
-id="capitalNote"
-placeholder="备注，例如：昨天回款">
-
-</div>
-
-<div class="btns">
-
-<button id="addCapital">
-加入本金
-</button>
-
-<button class="gray" id="resetCapital">
-重新设置本金
-</button>
-
-</div>
-
-<div class="notice">
-例如今晚带 ¥30,000；昨天有人回款 ¥3,000，可以用“加入本金”把这 ¥3,000 加回来。
-</div>
-
-</div>
 </div>
 
 
 <!-- 新增流水 -->
-<div class="card form">
 
-<div class="title">新增流水</div>
+<div class="form entry-form">
+
+<div class="title">
+新增流水
+</div>
 
 <div class="row2">
 
@@ -158,7 +662,9 @@ placeholder="备注（可不填）">
 借出
 </button>
 
-<button class="gray" id="repay">
+<button
+class="gray"
+id="repay">
 还款
 </button>
 
@@ -166,11 +672,15 @@ placeholder="备注（可不填）">
 
 <div class="btns">
 
-<button class="dark" id="other">
+<button
+class="dark"
+id="other">
 其他收入
 </button>
 
-<button class="gray" id="clear">
+<button
+class="gray"
+id="clear">
 清空输入
 </button>
 
@@ -178,50 +688,191 @@ placeholder="备注（可不填）">
 
 </div>
 
+</div>
+
+
+<!-- 本金 -->
+
+<div class="card">
+
+<div class="principal">
+
+<div>
+
+<small>
+今晚带入本金
+</small>
+
+<div
+class="money"
+id="capitalIn">
+¥0
+</div>
+
+</div>
+
+
+<div>
+
+<small>
+当前本金余额
+</small>
+
+<div
+class="money"
+id="capitalNow">
+¥0
+</div>
+
+</div>
+
+</div>
+
+
+<div
+class="form"
+style="border-top:1px solid #e7ebef">
+
+<div class="title">
+本金操作
+</div>
+
+<div class="row2">
+
+<input
+id="capitalAmount"
+type="number"
+inputmode="decimal"
+placeholder="输入本金金额">
+
+<input
+id="capitalNote"
+placeholder="备注，例如：昨天回款">
+
+</div>
+
+<div class="btns">
+
+<button id="addCapital">
+加入本金
+</button>
+
+<button
+class="gray"
+id="resetCapital">
+重新设置本金
+</button>
+
+</div>
+
+<div class="notice">
+
+例如今晚带 ¥30,000；
+昨天有人回款 ¥3,000，
+可以用“加入本金”把这 ¥3,000 加回来。
+
+</div>
+
+</div>
+
+</div>
+
 
 <!-- 今晚统计 -->
+
 <div class="card">
 
 <div class="head">
-<b>今晚统计</b>
-<span>自动计算</span>
+
+<b>
+今晚统计
+</b>
+
+<span>
+自动计算
+</span>
+
 </div>
+
 
 <div class="stats">
 
 <div class="stat red">
-<small>今晚借出</small>
-<b id="sumLend">¥0</b>
+
+<small>
+今晚借出
+</small>
+
+<b id="sumLend">
+¥0
+</b>
+
 </div>
+
 
 <div class="stat green">
-<small>今晚回款</small>
-<b id="sumRepay">¥0</b>
+
+<small>
+今晚回款
+</small>
+
+<b id="sumRepay">
+¥0
+</b>
+
 </div>
+
 
 <div class="stat">
-<small>其他收入</small>
-<b id="sumOther">¥0</b>
+
+<small>
+其他收入
+</small>
+
+<b id="sumOther">
+¥0
+</b>
+
 </div>
+
 
 <div class="stat">
-<small>流水笔数</small>
-<b id="count">0</b>
+
+<small>
+流水笔数
+</small>
+
+<b id="count">
+0
+</b>
+
 </div>
 
 </div>
+
 </div>
 
 
-<!-- 流水 -->
+<!-- 今晚流水 -->
+
 <div class="card">
 
 <div class="head">
-<b>今晚流水</b>
-<span>按客户分组 · 每笔独立</span>
+
+<b>
+今晚流水
+</b>
+
+<span>
+按客户分组 · 每笔独立
+</span>
+
 </div>
 
-<div class="form" style="padding-bottom:6px">
+
+<div
+class="form"
+style="padding-bottom:6px">
 
 <input
 id="search"
@@ -229,19 +880,28 @@ placeholder="搜索客户、备注或金额">
 
 </div>
 
-<div id="ledger"></div>
+
+<div id="ledger">
+</div>
+
 
 <div class="tools">
 
-<button class="gray" id="undo">
+<button
+class="gray"
+id="undo">
 撤销删除
 </button>
 
-<button class="gray" id="export">
+<button
+class="gray"
+id="export">
 导出备份
 </button>
 
-<button class="gray" id="clearAll">
+<button
+class="gray"
+id="clearAll">
 清空今晚流水
 </button>
 
@@ -250,7 +910,10 @@ placeholder="搜索客户、备注或金额">
 </div>
 
 
-<div class="toast" id="toast"></div>
+<div
+class="toast"
+id="toast">
+</div>
 
 </div>
 
@@ -259,55 +922,81 @@ placeholder="搜索客户、备注或金额">
 
 const KEY="ledger_prototype_v3";
 
+
 let data=JSON.parse(
+
 localStorage.getItem(KEY)
+
 ||
+
 '{"capital":0,"flows":[],"names":[]}'
+
 );
+
 
 let deleted=null;
 
-const $=id=>document.getElementById(id);
 
+const $=id=>
+document.getElementById(id);
+
+
+/* 金额 */
 
 function money(n){
 
 return "¥"+
-Number(n||0).toLocaleString(
+Number(n||0)
+.toLocaleString(
 "zh-CN",
-{maximumFractionDigits:2}
+{
+maximumFractionDigits:2
+}
 );
 
 }
 
+
+/* 当前系统时间 */
 
 function nowInput(){
 
 const d=new Date();
 
-const p=n=>String(n).padStart(2,"0");
+const p=n=>
+String(n).padStart(2,"0");
 
 return d.getFullYear()
-+"-"+p(d.getMonth()+1)
-+"-"+p(d.getDate())
-+"T"+p(d.getHours())
-+":"+p(d.getMinutes());
++"-"
++p(d.getMonth()+1)
++"-"
++p(d.getDate())
++"T"
++p(d.getHours())
++":"
++p(d.getMinutes());
 
 }
 
+
+/* 流水显示时间 */
 
 function displayTime(v){
 
 const d=new Date(v);
 
-if(isNaN(d))return v||"";
+if(isNaN(d))
+return v||"";
 
-const p=n=>String(n).padStart(2,"0");
+const p=n=>
+String(n).padStart(2,"0");
 
 return `${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
 
 }
 
+
+/* 保存 */
 
 function save(){
 
@@ -321,6 +1010,8 @@ render();
 }
 
 
+/* 提示 */
+
 function toast(t){
 
 $("toast").textContent=t;
@@ -328,40 +1019,59 @@ $("toast").textContent=t;
 $("toast").classList.add("show");
 
 setTimeout(
-()=>$("toast").classList.remove("show"),
+
+()=>
+$("toast")
+.classList.remove("show"),
+
 1500
+
 );
 
 }
 
 
+/* 顶部系统时间 */
+
 function systemClock(){
 
 const d=new Date();
 
-const p=n=>String(n).padStart(2,"0");
+const p=n=>
+String(n).padStart(2,"0");
 
 $("clock").textContent=
+
 `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
 
 }
 
 
+/* 客户名字 */
+
 function renderNames(){
 
 $("names").innerHTML=
+
 data.names
 .slice(0,12)
-.map(n=>
-`<button class="name"
+.map(
+
+n=>
+
+`<button
+class="name"
 onclick="pickName('${n.replace(/'/g,"&#39;")}')">
 ${n}
 </button>`
+
 )
 .join("");
 
 }
 
+
+/* 选择客户 */
 
 function pickName(n){
 
@@ -369,40 +1079,89 @@ $("customer").value=n;
 
 toast("已选择："+n);
 
+
+/* 自动跳到金额 */
+
+setTimeout(()=>{
+
+$("amount").focus();
+
+$("amount").scrollIntoView({
+
+behavior:"smooth",
+
+block:"center"
+
+});
+
+},120);
+
 }
 
+
+/* 页面渲染 */
 
 function render(){
 
 renderNames();
 
+
 $("flowTime").value=
-$("flowTime").value||nowInput();
+$("flowTime").value
+||
+nowInput();
 
 
 $("capitalIn").textContent=
 money(data.capital);
 
 
+/* 计算当前本金 */
+
 const balance=
+
 data.capital
+
 -
+
 data.flows
-.filter(x=>x.type==="lend")
-.reduce((a,x)=>a+x.amount,0)
+
+.filter(
+x=>x.type==="lend"
+)
+
+.reduce(
+(a,x)=>a+x.amount,
+0
+)
+
 +
+
 data.flows
-.filter(x=>x.type==="repay"||x.type==="other")
-.reduce((a,x)=>a+x.amount,0);
+
+.filter(
+x=>x.type==="repay"
+||
+x.type==="other"
+)
+
+.reduce(
+(a,x)=>a+x.amount,
+0
+);
 
 
 $("capitalNow").textContent=
 money(balance);
 
 
-let lend=0,
-repay=0,
-other=0;
+/* 统计 */
+
+let lend=0;
+
+let repay=0;
+
+let other=0;
 
 
 data.flows.forEach(x=>{
@@ -419,35 +1178,54 @@ other+=x.amount;
 });
 
 
-$("sumLend").textContent=money(lend);
+$("sumLend").textContent=
+money(lend);
 
-$("sumRepay").textContent=money(repay);
+$("sumRepay").textContent=
+money(repay);
 
-$("sumOther").textContent=money(other);
+$("sumOther").textContent=
+money(other);
 
-$("count").textContent=data.flows.length;
+$("count").textContent=
+data.flows.length;
 
+
+/* 搜索 */
 
 const q=
-$("search").value
+$("search")
+.value
 .trim()
 .toLowerCase();
 
 
 const list=
-data.flows.filter(x=>
-!q ||
+data.flows.filter(
+
+x=>
+
+!q
+
+||
+
 `${x.customer} ${x.note} ${x.amount}`
 .toLowerCase()
 .includes(q)
+
 );
 
+
+/* 按客户分组 */
 
 const groups={};
 
 
 list.forEach(x=>
-(groups[x.customer]??=[]).push(x)
+
+(groups[x.customer]??=[])
+.push(x)
+
 );
 
 
@@ -455,93 +1233,190 @@ let out="";
 
 
 Object.entries(groups)
-.forEach(([name,arr])=>{
+.forEach(
+
+([name,arr])=>{
 
 let bal=
+
 arr.reduce(
+
 (a,x)=>
+
 a+
-(x.type==="lend"
-?x.amount
-:-x.amount),
+
+(
+x.type==="lend"
+?
+x.amount
+:
+-x.amount
+),
+
 0
+
 );
 
 
-out+=
-`<div class="group">
+out+=`
+
+<div class="group">
 
 <div class="grouphead">
-<span>${name}</span>
+
 <span>
-${bal>=0?"欠 ":"结余 "}
-${money(Math.abs(bal))}
+${name}
 </span>
-</div>`;
+
+<span>
+${
+bal>=0
+?
+"欠 "
+:
+"结余 "
+}
+
+${money(Math.abs(bal))}
+
+</span>
+
+</div>
+
+`;
 
 
 arr.forEach(x=>{
 
 const label=
+
 x.type==="lend"
-?"借出"
-:x.type==="repay"
-?"还款"
-:"其他收入";
+?
+"借出"
+:
+x.type==="repay"
+?
+"还款"
+:
+"其他收入";
 
 
-out+=
-`<div class="tx">
+out+=`
+
+<div class="tx">
 
 <div class="txmain">
-${label}${x.note?" · "+x.note:""}
+
+${label}
+
+${x.note
+?
+" · "+x.note
+:
+""}
+
 <br>
+
 <span class="time">
+
 ${displayTime(x.time)}
+
 </span>
+
 </div>
 
-<div class="amt ${x.type==="lend"?"minus":"plus"}">
-${x.type==="lend"?"-":"+"}${money(x.amount).slice(1)}
+
+<div
+class="amt ${
+x.type==="lend"
+?
+"minus"
+:
+"plus"
+}">
+
+${
+x.type==="lend"
+?
+"-"
+:
+"+"
+}
+
+${money(x.amount).slice(1)}
+
 </div>
+
 
 <button
+
 class="txbtn"
+
 onclick="delFlow('${x.id}')">
+
 删除
+
 </button>
 
-</div>`;
+</div>
+
+`;
 
 });
 
 
-out+=
-`<div class="sub">
+out+=`
+
+<div class="sub">
+
 本组当前：
-${bal>=0?"欠款 ":"结余 "}
+
+${
+bal>=0
+?
+"欠款 "
+:
+"结余 "
+}
+
 ${money(Math.abs(bal))}
+
 </div>
 
-</div>`;
+</div>
+
+`;
 
 });
 
 
 $("ledger").innerHTML=
-out||
-'<div class="empty">今晚还没有流水</div>';
+
+out
+
+||
+
+'<div class="empty">
+今晚还没有流水
+</div>';
 
 }
 
 
+/* 新增流水 */
+
 function addFlow(type){
 
 const customer=
-$("customer").value.trim();
+$("customer")
+.value
+.trim();
+
 
 const amount=
-Number($("amount").value);
+Number(
+$("amount").value
+);
 
 
 if(!customer){
@@ -568,7 +1443,8 @@ return;
 
 const flow={
 
-id:Date.now()+"",
+id:
+Date.now()+"",
 
 customer,
 
@@ -576,9 +1452,15 @@ amount,
 
 type,
 
-time:$("flowTime").value||nowInput(),
+time:
+$("flowTime").value
+||
+nowInput(),
 
-note:$("note").value.trim()
+note:
+$("note")
+.value
+.trim()
 
 };
 
@@ -586,32 +1468,64 @@ note:$("note").value.trim()
 data.flows.push(flow);
 
 
-if(!data.names.includes(customer))
+/* 保存客户名字 */
+
+if(
+!data.names.includes(customer)
+){
+
 data.names.unshift(customer);
 
+}
 
-data.names=data.names.slice(0,30);
 
+data.names=
+data.names.slice(0,30);
+
+
+/* 清金额 */
 
 $("amount").value="";
 
 $("note").value="";
 
-$("flowTime").value=nowInput();
+$("flowTime").value=
+nowInput();
 
 
 save();
 
-toast("已保存，流水已更新");
+
+toast(
+"已保存，流水已更新"
+);
 
 
-window.scrollTo({
-top:document.body.scrollHeight,
-behavior:"smooth"
+/* 自动跳到最新流水 */
+
+setTimeout(()=>{
+
+const latest=
+document.querySelector(".tx");
+
+if(latest){
+
+latest.scrollIntoView({
+
+behavior:"smooth",
+
+block:"center"
+
 });
 
 }
 
+},120);
+
+}
+
+
+/* 删除流水 */
 
 function delFlow(id){
 
@@ -621,7 +1535,8 @@ x=>x.id===id
 );
 
 
-if(i<0)return;
+if(i<0)
+return;
 
 
 deleted=
@@ -630,22 +1545,33 @@ data.flows.splice(i,1)[0];
 
 save();
 
-toast("已删除，可点“撤销删除”恢复");
+
+toast(
+"已删除，可点“撤销删除”恢复"
+);
 
 }
 
+
+/* 借出 */
 
 $("lend").onclick=
 ()=>addFlow("lend");
 
 
+/* 还款 */
+
 $("repay").onclick=
 ()=>addFlow("repay");
 
 
+/* 其他收入 */
+
 $("other").onclick=
 ()=>addFlow("other");
 
+
+/* 清空输入 */
 
 $("clear").onclick=()=>{
 
@@ -653,20 +1579,27 @@ $("amount").value="";
 
 $("note").value="";
 
-$("flowTime").value=nowInput();
+$("flowTime").value=
+nowInput();
 
 };
 
 
+/* 加入本金 */
+
 $("addCapital").onclick=()=>{
 
 const n=
-Number($("capitalAmount").value);
+Number(
+$("capitalAmount").value
+);
 
 
 if(!n||n<=0){
 
-toast("请输入本金金额");
+toast(
+"请输入本金金额"
+);
 
 return;
 
@@ -683,85 +1616,132 @@ $("capitalNote").value="";
 
 save();
 
-toast("本金已加入");
+
+toast(
+"本金已加入"
+);
 
 };
 
 
+/* 重新设置本金 */
+
 $("resetCapital").onclick=()=>{
 
 const n=
+
 Number(
+
 prompt(
 "请输入今晚带入本金：",
 data.capital||0
 )
+
 );
 
 
-if(!isNaN(n)&&n>=0){
+if(
+!isNaN(n)
+&&
+n>=0
+){
 
 data.capital=n;
 
 save();
 
-toast("本金已重新设置");
+toast(
+"本金已重新设置"
+);
 
 }
 
 };
 
 
+/* 撤销删除 */
+
 $("undo").onclick=()=>{
 
 if(!deleted){
 
-toast("没有可撤销的删除");
+toast(
+"没有可撤销的删除"
+);
 
 return;
 
 }
 
 
-data.flows.push(deleted);
+data.flows.push(
+deleted
+);
 
 deleted=null;
 
+
 save();
 
-toast("已恢复");
+
+toast(
+"已恢复"
+);
 
 };
 
 
+/* 清空今晚流水 */
+
 $("clearAll").onclick=()=>{
 
 if(
+
 confirm(
 "确定清空今晚全部流水？本金不会删除。"
 )
+
 ){
 
 data.flows=[];
 
 save();
 
-toast("今晚流水已清空");
+toast(
+"今晚流水已清空"
+);
 
 }
 
 };
 
 
-$("search").oninput=render;
+/* 搜索 */
 
+$("search").oninput=
+render;
+
+
+/* 导出备份 */
 
 $("export").onclick=()=>{
 
 const blob=
+
 new Blob(
-[JSON.stringify(data,null,2)],
-{type:"application/json"}
+
+[
+JSON.stringify(
+data,
+null,
+2
+)
+],
+
+{
+type:"application/json"
+}
+
 );
 
 
@@ -770,27 +1750,66 @@ document.createElement("a");
 
 
 a.href=
-URL.createObjectURL(blob);
+URL.createObjectURL(
+blob
+);
 
 
 a.download=
-"今晚流水备份-"+
+
+"今晚流水备份-"
++
 new Date()
 .toISOString()
-.slice(0,10)+
+.slice(0,10)
++
 ".json";
 
 
 a.click();
 
 
-URL.revokeObjectURL(a.href);
+URL.revokeObjectURL(
+a.href
+);
 
 
-toast("备份文件已生成");
+toast(
+"备份文件已生成"
+);
 
 };
 
+
+/* 客户输入框按回车 */
+
+$("customer")
+.addEventListener(
+"keydown",
+function(e){
+
+if(e.key==="Enter"){
+
+e.preventDefault();
+
+$("amount").focus();
+
+$("amount")
+.scrollIntoView({
+
+behavior:"smooth",
+
+block:"center"
+
+});
+
+}
+
+}
+);
+
+
+/* 初始化 */
 
 $("flowTime").value=
 nowInput();
@@ -803,6 +1822,7 @@ systemClock,
 
 
 systemClock();
+
 
 render();
 
