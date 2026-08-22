@@ -4,136 +4,42 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f5f7fa">
-<title>tianma记账系统</title>
+<title>今晚流水记账</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{
- --bg:#f5f7fa;--card:#fff;--ink:#17202d;--muted:#8c96a4;
- --line:#e5e9ee;--green:#159447;--green2:#087b39;
- --red:#df3d39;--blue:#1267d6;--purple:#7056d8;
-}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
-font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC",
-"Helvetica Neue","Microsoft YaHei",sans-serif}
-body{min-height:100vh}
-.app{width:min(100%,780px);margin:auto;padding:14px 12px 45px}
-.top{text-align:center;padding:4px 0 14px}
-.top h1{margin:0;font-size:27px;font-weight:900;letter-spacing:-1px}
-.clock{margin-top:5px;color:var(--muted);font-size:14px}
-.clock b{color:var(--green);font-variant-numeric:tabular-nums}
-.card{background:var(--card);border:1px solid #e6e9ee;border-radius:21px;
-margin-bottom:13px;overflow:hidden;box-shadow:0 6px 20px rgba(30,45,65,.065)}
-.section{padding:16px}
-.section-title{display:flex;align-items:center;justify-content:space-between;
-gap:10px;font-size:19px;font-weight:900;margin-bottom:12px}
-.green-title{color:var(--green)}
-.section-right{color:var(--muted);font-size:12px;font-weight:700}
-input{width:100%;height:52px;border:1px solid #dce1e7;border-radius:15px;
-background:#fff;padding:0 15px;font-size:16px;color:var(--ink);outline:none}
-input:focus{border-color:#70bb8b;box-shadow:0 0 0 4px rgba(21,148,71,.09)}
-input::placeholder{color:#aeb5bf}
-.name-list{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px}
-.name-btn{height:40px;padding:0 16px;border-radius:12px;
-border:1px solid #cde9d7;background:linear-gradient(180deg,#f5fcf7,#e8f7ed);
-color:var(--green2);font-size:14px;font-weight:850}
-.name-btn.active{color:#fff;background:linear-gradient(145deg,#20ad60,#098543);
-border-color:#098543}
-.small-btn{height:34px;padding:0 12px;border:1px solid #cde9d7;
-border-radius:10px;background:#f3fbf6;color:var(--green2);font-weight:800}
-.type-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.type-btn{height:51px;border-radius:14px;border:1px solid #dce1e7;
-background:#fff;font-size:16px;font-weight:850}
-.type-btn.lend.selected{color:#fff;background:linear-gradient(145deg,#19ad5e,#0c8744);
-border-color:#0c8744}
-.type-btn.repay.selected{color:var(--red);border:1.5px solid #ef4a45;background:#fff}
-.type-btn.other.selected{color:var(--blue);border:1.5px solid #3981e5;background:#fff}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.btn{height:50px;border:0;border-radius:14px;font-size:16px;font-weight:900}
-.primary{color:#fff;background:linear-gradient(145deg,#18aa5d,#0b873f);
-box-shadow:0 7px 14px rgba(15,137,65,.18)}
-.secondary{background:#f3f5f7;color:#303845}
-.outline{background:#fff;border:1px solid #cfe5d7;color:var(--green)}
-.capital-grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);
-border-radius:13px;overflow:hidden;margin-bottom:12px}
-.capital-item{padding:13px 10px;text-align:center}
-.capital-item+.capital-item{border-left:1px solid var(--line)}
-.capital-item small{display:block;color:#697483;font-size:13px;margin-bottom:4px}
-.capital-item b{font-size:24px;color:var(--green);font-variant-numeric:tabular-nums}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.help{margin-top:9px;font-size:12px;line-height:1.6;color:#8993a1}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px}
-.stat{border-radius:12px;padding:11px 7px;text-align:center;border:1px solid #e8ebef}
-.stat small{display:block;font-size:12px;margin-bottom:5px}
-.stat b{font-size:18px;font-variant-numeric:tabular-nums}
-.stat.red{background:#fff7f6;color:var(--red)}
-.stat.green{background:#f4fbf6;color:var(--green)}
-.stat.blue{background:#f4f8ff;color:var(--blue)}
-.stat.purple{background:#f8f5ff;color:var(--purple)}
-.report-head{padding:15px 16px 7px}
-.report-wrap{padding:0 10px 12px}
-.report-card{border:1px solid #e3e8ed;border-radius:15px;overflow:hidden;margin-top:9px}
-.report-title{display:flex;justify-content:space-between;align-items:center;
-padding:11px 13px;background:#f8fafb;border-bottom:1px solid #e8edf1}
-.report-name{font-weight:950;color:var(--green);font-size:16px}
-.report-total{font-weight:900}
-.report-grid{display:grid;grid-template-columns:repeat(3,1fr)}
-.report-cell{padding:11px 8px;text-align:center;border-right:1px solid #edf0f3}
-.report-cell:last-child{border-right:0}
-.report-cell small{display:block;color:#7c8794;font-size:12px;margin-bottom:4px}
-.report-cell b{font-size:16px}
-.report-cell.debt b{color:var(--red)}
-.report-cell.repay b{color:var(--green)}
-.report-cell.net b{color:var(--blue)}
-.search{padding:11px 14px;border-bottom:1px solid var(--line)}
-.customer-group{margin:10px;border:1px solid #e2e7ec;border-radius:15px;overflow:hidden}
-.group-head{display:flex;justify-content:space-between;align-items:center;
-padding:12px 13px;background:#fafbfd;font-weight:900}
-.customer-name{color:var(--green);font-size:17px;font-weight:950}
-.group-head .debt{font-size:13px}
-.flow{display:grid;grid-template-columns:55px 1fr auto 34px;gap:8px;
-align-items:center;padding:10px 11px;border-top:1px solid #edf0f3}
-.badge{width:54px;text-align:center;border-radius:10px;padding:5px 2px;font-size:12px;font-weight:850}
-.badge.lend{background:#fff0ef;color:var(--red)}
-.badge.repay{background:#effaf2;color:var(--green)}
-.badge.other{background:#eef5ff;color:var(--blue)}
-.flow-main{min-width:0}
-.flow-note{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.flow-time{font-size:11px;color:#9aa3ae;margin-top:3px;font-variant-numeric:tabular-nums}
-.flow-amount{font-size:16px;font-weight:900;white-space:nowrap}
-.flow-amount.minus{color:var(--red)}
-.flow-amount.plus{color:var(--green)}
-.del{width:34px;height:34px;border:1px solid #ffd9d5;background:#fff7f6;
-color:var(--red);border-radius:10px;font-size:15px}
-.group-total{padding:8px 12px;text-align:right;border-top:1px solid var(--line);
-font-size:12px;color:#667180;background:#fbfcfd}
-.empty{text-align:center;padding:32px 10px;color:#9aa3ae;font-size:14px;line-height:1.7}
-.bottom-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:12px}
-.bottom-actions button{height:43px;border-radius:14px;background:#fff;
-border:1px solid #e2e6eb;font-weight:800;color:#46505e}
-.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);
-background:#18202c;color:#fff;padding:11px 17px;border-radius:12px;font-size:14px;
-opacity:0;pointer-events:none;transition:.2s;z-index:99;white-space:nowrap}
-.toast.show{opacity:1}
-@media(max-width:520px){
- .app{padding:13px 10px 35px}.top h1{font-size:25px}
- .stats{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}
- .flow{grid-template-columns:54px 1fr auto 34px}.flow-amount{font-size:15px}
-}
+:root{--bg:#f5f7fa;--card:#fff;--ink:#17202d;--muted:#8c96a4;--line:#e5e9ee;--green:#159447;--green2:#087b39;--red:#df3d39;--blue:#1267d6;--purple:#7056d8}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Helvetica Neue","Microsoft YaHei",sans-serif}
+body{min-height:100vh}.app{width:min(100%,780px);margin:auto;padding:14px 12px 45px}
+.top{text-align:center;padding:4px 0 14px}.top h1{margin:0;font-size:27px;font-weight:900;letter-spacing:-1px}.clock{margin-top:5px;color:var(--muted);font-size:14px}.clock b{color:var(--green);font-variant-numeric:tabular-nums}
+.card{background:var(--card);border:1px solid #e6e9ee;border-radius:21px;margin-bottom:13px;overflow:hidden;box-shadow:0 6px 20px rgba(30,45,65,.065)}
+.section{padding:16px}.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:19px;font-weight:900;margin-bottom:12px}.green-title{color:var(--green)}.section-right{color:var(--muted);font-size:12px;font-weight:700}
+input{width:100%;height:52px;border:1px solid #dce1e7;border-radius:15px;background:#fff;padding:0 15px;font-size:16px;color:var(--ink);outline:none}input:focus{border-color:#70bb8b;box-shadow:0 0 0 4px rgba(21,148,71,.09)}input::placeholder{color:#aeb5bf}
+.name-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.name-item{display:flex;align-items:center;gap:0}.name-btn{height:40px;padding:0 14px;border-radius:12px 0 0 12px;border:1px solid #cde9d7;background:linear-gradient(180deg,#f5fcf7,#e8f7ed);color:var(--green2);font-size:14px;font-weight:850}.name-btn.active{color:#fff;background:linear-gradient(145deg,#20ad60,#098543);border-color:#098543}.name-del{height:40px;width:30px;border:1px solid #cde9d7;border-left:0;border-radius:0 12px 12px 0;background:#fff5f4;color:var(--red);font-weight:900;font-size:14px}
+.small-btn{height:34px;padding:0 12px;border:1px solid #cde9d7;border-radius:10px;background:#f3fbf6;color:var(--green2);font-weight:800}
+.type-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.type-btn{height:51px;border-radius:14px;border:1px solid #dce1e7;background:#fff;font-size:16px;font-weight:850}.type-btn.lend.selected{color:#fff;background:linear-gradient(145deg,#19ad5e,#0c8744);border-color:#0c8744}.type-btn.repay.selected{color:var(--red);border:1.5px solid #ef4a45;background:#fff}.type-btn.other.selected{color:var(--blue);border:1.5px solid #3981e5;background:#fff}
+.btn{height:50px;border:0;border-radius:14px;font-size:16px;font-weight:900}.primary{color:#fff;background:linear-gradient(145deg,#18aa5d,#0b873f);box-shadow:0 7px 14px rgba(15,137,65,.18)}.outline{background:#fff;border:1px solid #cfe5d7;color:var(--green)}.secondary{background:#f3f5f7;color:#303845}
+.capital-grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:13px;overflow:hidden;margin-bottom:12px}.capital-item{padding:13px 10px;text-align:center}.capital-item+.capital-item{border-left:1px solid var(--line)}.capital-item small{display:block;color:#697483;font-size:13px;margin-bottom:4px}.capital-item b{font-size:24px;color:var(--green);font-variant-numeric:tabular-nums}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.help{margin-top:9px;font-size:12px;line-height:1.6;color:#8993a1}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px}.stat{border-radius:12px;padding:11px 7px;text-align:center;border:1px solid #e8ebef}.stat small{display:block;font-size:12px;margin-bottom:5px}.stat b{font-size:18px;font-variant-numeric:tabular-nums}.stat.red{background:#fff7f6;color:var(--red)}.stat.green{background:#f4fbf6;color:var(--green)}.stat.blue{background:#f4f8ff;color:var(--blue)}.stat.purple{background:#f8f5ff;color:var(--purple)}
+.report-head{padding:15px 16px 7px}.report-wrap{padding:0 10px 12px}.report-card{border:1px solid #e3e8ed;border-radius:15px;overflow:hidden;margin-top:9px}.report-title{display:flex;justify-content:space-between;align-items:center;padding:11px 13px;background:#f8fafb;border-bottom:1px solid #e8edf1}.report-name{font-weight:950;color:var(--green);font-size:16px}.report-total{font-weight:900}.report-grid{display:grid;grid-template-columns:repeat(3,1fr)}.report-cell{padding:11px 8px;text-align:center;border-right:1px solid #edf0f3}.report-cell:last-child{border-right:0}.report-cell small{display:block;color:#7c8794;font-size:12px;margin-bottom:4px}.report-cell b{font-size:16px}.report-cell.debt b{color:var(--red)}.report-cell.repay b{color:var(--green)}.report-cell.net b{color:var(--blue)}
+.search{padding:11px 14px;border-bottom:1px solid var(--line)}.customer-group{margin:10px;border:1px solid #e2e7ec;border-radius:15px;overflow:hidden}.group-head{display:flex;justify-content:space-between;align-items:center;padding:12px 13px;background:#fafbfd;font-weight:900}.customer-name{color:var(--green);font-size:17px;font-weight:950}.group-head .debt{font-size:13px}
+.flow{display:grid;grid-template-columns:55px 1fr auto 34px;gap:8px;align-items:center;padding:10px 11px;border-top:1px solid #edf0f3}.badge{width:54px;text-align:center;border-radius:10px;padding:5px 2px;font-size:12px;font-weight:850}.badge.lend{background:#fff0ef;color:var(--red)}.badge.repay{background:#effaf2;color:var(--green)}.badge.other{background:#eef5ff;color:var(--blue)}.flow-main{min-width:0}.flow-note{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.flow-time{font-size:11px;color:#9aa3ae;margin-top:3px;font-variant-numeric:tabular-nums}.flow-amount{font-size:16px;font-weight:900;white-space:nowrap}.flow-amount.minus{color:var(--red)}.flow-amount.plus{color:var(--green)}.del{width:34px;height:34px;border:1px solid #ffd9d5;background:#fff7f6;color:var(--red);border-radius:10px;font-size:15px}
+.group-total{padding:8px 12px;text-align:right;border-top:1px solid var(--line);font-size:12px;color:#667180;background:#fbfcfd}.empty{text-align:center;padding:32px 10px;color:#9aa3ae;font-size:14px;line-height:1.7}.bottom-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:12px}.bottom-actions button{height:43px;border-radius:14px;background:#fff;border:1px solid #e2e6eb;font-weight:800;color:#46505e}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#18202c;color:#fff;padding:11px 17px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;z-index:99;white-space:nowrap}.toast.show{opacity:1}
+@media(max-width:520px){.app{padding:13px 10px 35px}.top h1{font-size:25px}.stats{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.flow{grid-template-columns:54px 1fr auto 34px}.flow-amount{font-size:15px}}
 </style>
 </head>
 <body>
 <div class="app">
 
 <div class="top">
-<h1>流水记账</h1>
+<h1>今晚流水记账</h1>
 <div class="clock">实时系统时间　<b id="clock">--:--:--</b></div>
 </div>
 
-<!-- 姓名 -->
 <div class="card">
 <div class="section">
 <div class="section-title green-title">
-<span>♙　姓名</span>
+<span>♙　客户</span>
 <button class="small-btn" onclick="addCustomer()">＋ 新增客户</button>
 </div>
 <input id="customerInput" autocomplete="off" placeholder="输入或选择客户姓名">
@@ -141,7 +47,6 @@ opacity:0;pointer-events:none;transition:.2s;z-index:99;white-space:nowrap}
 </div>
 </div>
 
-<!-- 新增流水 -->
 <div class="card">
 <div class="section">
 <div class="section-title green-title">
@@ -149,9 +54,7 @@ opacity:0;pointer-events:none;transition:.2s;z-index:99;white-space:nowrap}
 <span class="section-right">保存时自动记录手机时间</span>
 </div>
 
-<!-- 这里没有时间框、没有清空输入框、没有多余的输入金额按钮 -->
 <input id="amount" type="number" inputmode="decimal" placeholder="输入金额">
-
 <input id="note" style="margin-top:10px" placeholder="备注（可不填）">
 
 <div class="type-row">
@@ -163,44 +66,30 @@ opacity:0;pointer-events:none;transition:.2s;z-index:99;white-space:nowrap}
 <button class="type-btn other" id="otherBtn" onclick="selectType('other')">▣　其他收入</button>
 <button class="btn primary" onclick="saveFlow()">保存流水</button>
 </div>
-
 </div>
 </div>
 
-<!-- 本金 -->
 <div class="card">
 <div class="section">
 <div class="section-title green-title"><span>♧　本金操作</span></div>
 <div class="capital-grid">
-<div class="capital-item">
-<small>今晚带入本金</small>
-<b id="capitalIn">¥0.00</b>
+<div class="capital-item"><small>今晚带入本金</small><b id="capitalIn">¥0.00</b></div>
+<div class="capital-item"><small>当前本金余额</small><b id="capitalNow">¥0.00</b></div>
 </div>
-<div class="capital-item">
-<small>当前本金余额</small>
-<b id="capitalNow">¥0.00</b>
-</div>
-</div>
-
 <div class="grid2">
 <input id="capitalAmount" type="number" inputmode="decimal" placeholder="输入本金金额">
 <input id="capitalNote" placeholder="备注，例如：昨天回款">
 </div>
-
 <div class="actions">
 <button class="btn outline" onclick="addCapital()">＋ 加入本金</button>
 <button class="btn secondary" onclick="resetCapital()">⟳　重新设置本金</button>
 </div>
-
 <div class="help">例如今晚带 ¥30,000；昨天有人回款 ¥3,000，可以用“加入本金”把 ¥3,000 加回来。</div>
 </div>
 </div>
 
-<!-- 统计 -->
 <div class="card">
-<div class="section-title green-title" style="padding:15px 16px 6px">
-<span>▥　统计</span>
-</div>
+<div class="section-title green-title" style="padding:15px 16px 6px"><span>▥　今晚统计</span></div>
 <div class="stats">
 <div class="stat red"><small>今晚借出</small><b id="sumLend">¥0.00</b></div>
 <div class="stat green"><small>今晚回款</small><b id="sumRepay">¥0.00</b></div>
@@ -209,25 +98,18 @@ opacity:0;pointer-events:none;transition:.2s;z-index:99;white-space:nowrap}
 </div>
 </div>
 
-<!-- 统计报表 -->
 <div class="card">
 <div class="report-head">
 <div class="section-title green-title" style="margin-bottom:0">
-<span>▤　统计报表</span>
-<span class="section-right">每个客户单独统计</span>
+<span>▤　统计报表</span><span class="section-right">每个客户单独统计</span>
 </div>
 </div>
 <div id="report" class="report-wrap"></div>
 </div>
 
-<!-- 流水 -->
 <div class="card">
-<div class="section-title green-title" style="padding:15px 16px 6px">
-<span>▤　流水</span>
-</div>
-<div class="search">
-<input id="search" placeholder="⌕　搜索客户、备注或金额">
-</div>
+<div class="section-title green-title" style="padding:15px 16px 6px"><span>▤　今晚流水</span></div>
+<div class="search"><input id="search" placeholder="⌕　搜索客户、备注或金额"></div>
 <div id="ledger"></div>
 <div class="bottom-actions">
 <button onclick="undoDelete()">↶　撤销删除</button>
@@ -240,31 +122,19 @@ opacity:0;pointer-events:none;transition:.2s;z-index:99;white-space:nowrap}
 <div class="toast" id="toast"></div>
 
 <script>
-const KEY="tonight_ledger_final_v3";
+const KEY="tonight_ledger_final_v4";
 let state=JSON.parse(localStorage.getItem(KEY)||'{"capital":0,"flows":[],"names":[]}');
 let selectedType="lend";
 let deleted=null;
-
 const $=id=>document.getElementById(id);
 
 function pad(n){return String(n).padStart(2,"0")}
+function money(n){return "¥"+Number(n||0).toLocaleString("zh-CN",{minimumFractionDigits:2,maximumFractionDigits:2})}
 
-function money(n){
- return "¥"+Number(n||0).toLocaleString("zh-CN",
- {minimumFractionDigits:2,maximumFractionDigits:2});
-}
-
-/* 永远直接读取手机当前系统时间 */
+/* 保存流水时直接读取手机当前系统时间 */
 function nowTime(){
  const d=new Date();
- return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+
- " "+pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
-}
-
-function showToast(t){
- const x=$("toast");x.textContent=t;x.classList.add("show");
- clearTimeout(showToast.timer);
- showToast.timer=setTimeout(()=>x.classList.remove("show"),1600);
+ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
 }
 
 function updateClock(){
@@ -272,6 +142,12 @@ function updateClock(){
  $("clock").textContent=pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
 }
 setInterval(updateClock,1000);updateClock();
+
+function showToast(t){
+ const x=$("toast");x.textContent=t;x.classList.add("show");
+ clearTimeout(showToast.timer);
+ showToast.timer=setTimeout(()=>x.classList.remove("show"),1600);
+}
 
 function selectType(type){
  selectedType=type;
@@ -301,6 +177,24 @@ function chooseName(name){
  $("amount").scrollIntoView({behavior:"smooth",block:"center"});
 }
 
+/* 删除已保存客户：只删客户名单，不删历史流水 */
+function deleteCustomer(name){
+ const ok=confirm(
+  "确定删除客户“"+name+"”吗？\n\n"+
+  "只会从客户名单中删除，历史流水不会删除。"
+ );
+ if(!ok)return;
+
+ state.names=state.names.filter(n=>n!==name);
+
+ if($("customerInput").value.trim()===name){
+  $("customerInput").value="";
+ }
+
+ saveData();
+ showToast("客户已删除，历史流水保留");
+}
+
 function saveFlow(){
  const customer=$("customerInput").value.trim();
  const amount=Number($("amount").value);
@@ -318,8 +212,8 @@ function saveFlow(){
 
  const item={
   id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),
-  customer,
-  amount,
+  customer:customer,
+  amount:amount,
   type:selectedType,
   note:$("note").value.trim(),
   time:nowTime()
@@ -329,7 +223,6 @@ function saveFlow(){
  if(!state.names.includes(customer))state.names.unshift(customer);
  state.names=state.names.slice(0,50);
 
- /* 保存后清掉金额和备注，但不提供单独“清空”按钮 */
  $("amount").value="";
  $("note").value="";
 
@@ -362,16 +255,16 @@ function resetCapital(){
  showToast("本金已重新设置");
 }
 
-/* 删除一定要二次确认 */
+/* 删除流水必须确认 */
 function deleteFlow(id){
  const f=state.flows.find(x=>x.id===id);
  if(!f)return;
  const type=f.type==="lend"?"借出":f.type==="repay"?"还款":"其他收入";
  const ok=confirm(
- "确定删除这笔流水吗？\n\n客户："+f.customer+
- "\n类型："+type+
- "\n金额："+money(f.amount)+
- "\n时间："+f.time
+  "确定删除这笔流水吗？\n\n客户："+f.customer+
+  "\n类型："+type+
+  "\n金额："+money(f.amount)+
+  "\n时间："+f.time
  );
  if(!ok)return;
 
@@ -379,7 +272,7 @@ function deleteFlow(id){
  if(i<0)return;
  deleted=state.flows.splice(i,1)[0];
  saveData();
- showToast("已删除，可点击“撤销删除”恢复");
+ showToast("已删除，可撤销");
 }
 
 function undoDelete(){
@@ -400,16 +293,12 @@ function clearToday(){
 }
 
 function escapeHtml(t){
- return String(t).replace(/[&<>"']/g,c=>({
- "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
- }[c]));
+ return String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
 function escapeJs(t){
- return String(t).replace(/\\/g,"\\\\").replace(/'/g,"\\'")
- .replace(/\n/g,"\\n").replace(/\r/g,"\\r");
+ return String(t).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/\n/g,"\\n").replace(/\r/g,"\\r");
 }
 
-/* 每个客户：借出、回款、当前应收 */
 function renderReport(){
  const map={};
  state.flows.forEach(f=>{
@@ -446,10 +335,12 @@ function renderReport(){
 }
 
 function render(){
- $("nameList").innerHTML=state.names.slice(0,20).map(n=>
- `<button class="name-btn" data-name="${escapeHtml(n)}"
- onclick="chooseName('${escapeJs(n)}')">${escapeHtml(n)}</button>`
- ).join("");
+ $("nameList").innerHTML=state.names.slice(0,20).map(n=>`
+  <div class="name-item">
+   <button class="name-btn" data-name="${escapeHtml(n)}" onclick="chooseName('${escapeJs(n)}')">${escapeHtml(n)}</button>
+   <button class="name-del" title="删除客户" onclick="deleteCustomer('${escapeJs(n)}')">×</button>
+  </div>
+ `).join("");
 
  let lend=0,repay=0,other=0;
  state.flows.forEach(f=>{
@@ -468,11 +359,9 @@ function render(){
  renderReport();
 
  const q=$("search").value.trim().toLowerCase();
- const flows=state.flows.filter(f=>
-  !q||(`${f.customer} ${f.note} ${f.amount}`).toLowerCase().includes(q)
- );
-
+ const flows=state.flows.filter(f=>!q||(`${f.customer} ${f.note} ${f.amount}`).toLowerCase().includes(q));
  const groups={};
+
  flows.forEach(f=>{
   if(!groups[f.customer])groups[f.customer]=[];
   groups[f.customer].push(f);
@@ -520,18 +409,11 @@ function saveData(){
  render();
 }
 
-function scrollToTop(){
- window.scrollTo({top:0,behavior:"smooth"});
-}
+function scrollToTop(){window.scrollTo({top:0,behavior:"smooth"})}
 
 $("search").addEventListener("input",render);
-
-$("customerInput").addEventListener("keydown",e=>{
- if(e.key==="Enter"){e.preventDefault();$("amount").focus();}
-});
-$("amount").addEventListener("keydown",e=>{
- if(e.key==="Enter"){e.preventDefault();saveFlow();}
-});
+$("customerInput").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("amount").focus()}});
+$("amount").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();saveFlow()}});
 
 render();
 </script>
