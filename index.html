@@ -1,1508 +1,810 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>今晚流水账</title>
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>今晚流水记账</title>
 <style>
-*{
-    box-sizing:border-box;
-    -webkit-tap-highlight-color:transparent;
-}
-
-html,body{
-    margin:0;
-    padding:0;
-    background:#f3f5f8;
-    color:#20242b;
-    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",
-    "PingFang SC","Microsoft YaHei",Arial,sans-serif;
-}
-
-body{
-    min-height:100vh;
-}
-
-button,
-input{
-    font-family:inherit;
-}
-
-button{
-    cursor:pointer;
-}
-
-.page{
-    width:100%;
-    max-width:760px;
-    margin:0 auto;
-    padding-bottom:50px;
-}
-
-/* 顶部 */
-
-.top{
-    background:linear-gradient(135deg,#111827,#1d2738);
-    color:white;
-    padding:28px 20px 24px;
-    border-radius:0 0 26px 26px;
-    box-shadow:0 8px 25px rgba(15,23,42,.15);
-}
-
-.top-title{
-    font-size:30px;
-    font-weight:800;
-    margin-bottom:7px;
-}
-
-.top-time{
-    font-size:14px;
-    opacity:.7;
-    margin-bottom:20px;
-}
-
-/* 统计 */
-
-.stats{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
-}
-
-.stat{
-    background:#273142;
-    border:1px solid rgba(255,255,255,.06);
-    border-radius:18px;
-    padding:16px;
-}
-
-.stat-label{
-    font-size:14px;
-    color:#aeb7c5;
-    margin-bottom:8px;
-}
-
-.stat-value{
-    font-size:24px;
-    font-weight:800;
-    color:white;
-}
-
-/* 主体 */
-
-.content{
-    padding:18px 16px;
-}
-
-/* 卡片 */
-
-.card{
-    background:white;
-    border-radius:22px;
-    padding:20px;
-    margin-bottom:16px;
-    box-shadow:
-        0 5px 20px rgba(15,23,42,.06),
-        0 1px 3px rgba(15,23,42,.05);
-}
-
-.card-title-row{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:18px;
-}
-
-.card-title{
-    font-size:22px;
-    font-weight:800;
-}
-
-.card-sub{
-    font-size:13px;
-    color:#9aa2ad;
-}
-
-/* 客户 */
-
-.field{
-    margin-bottom:16px;
-}
-
-.label{
-    font-size:15px;
-    color:#6b7280;
-    margin-bottom:8px;
-    font-weight:600;
-}
-
-input{
-    width:100%;
-    height:58px;
-    border:1.5px solid #dce1e8;
-    border-radius:16px;
-    padding:0 17px;
-    font-size:18px;
-    outline:none;
-    background:#fff;
-    color:#20242b;
-    transition:.2s;
-}
-
-input:focus{
-    border-color:#377cf6;
-    box-shadow:0 0 0 3px rgba(55,124,246,.10);
-}
-
-input::placeholder{
-    color:#b6bdc7;
-}
-
-/* 类型 */
-
-.type-buttons{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
-}
-
-.type-btn{
-    height:56px;
-    border:0;
-    border-radius:16px;
-    background:#edf0f4;
-    color:#347af4;
-    font-size:19px;
-    font-weight:700;
-}
-
-.type-btn.active.loan{
-    background:#377cf6;
-    color:white;
-}
-
-.type-btn.active.return{
-    background:#18a873;
-    color:white;
-}
-
-/* 保存 */
-
-.save-btn{
-    width:100%;
-    height:60px;
-    border:0;
-    border-radius:17px;
-    background:linear-gradient(135deg,#377cf6,#2467dc);
-    color:white;
-    font-size:20px;
-    font-weight:800;
-    box-shadow:0 8px 18px rgba(55,124,246,.22);
-}
-
-.save-btn:active{
-    transform:scale(.985);
-}
-
-/* 清空 */
-
-.clear-btn{
-    width:100%;
-    height:54px;
-    border:0;
-    border-radius:16px;
-    background:#f0f2f5;
-    color:#333b48;
-    font-size:17px;
-    font-weight:700;
-    margin-top:10px;
-}
-
-/* 本金 */
-
-.principal-box{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
-}
-
-.principal-item{
-    background:#f7f8fa;
-    border-radius:17px;
-    padding:15px;
-}
-
-.principal-label{
-    color:#7a8390;
-    font-size:14px;
-    margin-bottom:6px;
-}
-
-.principal-number{
-    font-size:23px;
-    font-weight:800;
-}
-
-.add-principal{
-    margin-top:15px;
-    padding-top:15px;
-    border-top:1px solid #edf0f3;
-}
-
-.add-row{
-    display:grid;
-    grid-template-columns:1fr 120px;
-    gap:10px;
-}
-
-.add-row button{
-    border:0;
-    border-radius:15px;
-    background:#111827;
-    color:white;
-    font-size:17px;
-    font-weight:700;
-}
-
-/* 流水 */
-
-.ledger-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:15px;
-}
-
-.ledger-count{
-    color:#9aa2ad;
-    font-size:14px;
-}
-
-.ledger-empty{
-    text-align:center;
-    padding:35px 10px;
-    color:#a3aab5;
-}
-
-/* 每一笔单独一张 */
-
-.record{
-    border:1px solid #e8ebef;
-    border-radius:18px;
-    padding:16px;
-    margin-bottom:12px;
-    background:#fff;
-}
-
-.record:last-child{
-    margin-bottom:0;
-}
-
-.record-top{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:10px;
-}
-
-.record-name{
-    font-size:19px;
-    font-weight:800;
-}
-
-.record-type{
-    padding:5px 10px;
-    border-radius:10px;
-    font-size:13px;
-    font-weight:700;
-}
-
-.record-type.loan{
-    color:#377cf6;
-    background:#edf4ff;
-}
-
-.record-type.return{
-    color:#159669;
-    background:#eaf9f3;
-}
-
-.record-type.other{
-    color:#9b6a00;
-    background:#fff7df;
-}
-
-.record-amount{
-    font-size:25px;
-    font-weight:850;
-    margin-top:10px;
-}
-
-.record-amount.loan{
-    color:#377cf6;
-}
-
-.record-amount.return{
-    color:#159669;
-}
-
-.record-amount.other{
-    color:#b77900;
-}
-
-.record-time{
-    font-size:13px;
-    color:#9aa2ad;
-    margin-top:8px;
-}
-
-.record-note{
-    margin-top:8px;
-    font-size:14px;
-    color:#687180;
-    background:#f7f8fa;
-    padding:9px 11px;
-    border-radius:10px;
-}
-
-.delete-record{
-    margin-top:12px;
-    width:100%;
-    height:40px;
-    border:0;
-    border-radius:11px;
-    background:#f5f6f8;
-    color:#8b929c;
-    font-size:14px;
-}
-
-/* 提示 */
-
-.toast{
-    position:fixed;
-    left:50%;
-    bottom:30px;
-    transform:translate(-50%,20px);
-    background:#111827;
-    color:white;
-    padding:12px 20px;
-    border-radius:14px;
-    font-size:15px;
-    opacity:0;
-    pointer-events:none;
-    transition:.25s;
-    z-index:9999;
-    white-space:nowrap;
-}
-
-.toast.show{
-    opacity:1;
-    transform:translate(-50%,0);
-}
-
-/* 小屏 */
-
-@media(max-width:380px){
-    .top{
-        padding:24px 15px 20px;
-    }
-
-    .content{
-        padding:15px 12px;
-    }
-
-    .card{
-        padding:16px;
-    }
-
-    .stat-value{
-        font-size:21px;
-    }
-
-    .add-row{
-        grid-template-columns:1fr 105px;
-    }
+*{box-sizing:border-box}
+body{margin:0;background:#f3f5f8;color:#17202b;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+.app{max-width:760px;margin:auto;padding:12px 12px 40px}
+h1{font-size:25px;margin:4px 4px 4px;font-weight:850}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin:0 4px 14px;color:#7c8793;font-size:13px}
+.card{background:#fff;border:1px solid #e3e7ed;border-radius:18px;box-shadow:0 5px 18px #1923320b;overflow:hidden;margin-bottom:12px}
+.form{padding:14px}.title{font-size:18px;font-weight:850;margin-bottom:10px}
+input{width:100%;height:50px;border:1px solid #d9dee6;border-radius:13px;background:#fff;padding:0 14px;font-size:16px;outline:0}
+input:focus{border-color:#2878f5;box-shadow:0 0 0 3px #2878f518}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+button{height:50px;border:0;border-radius:13px;background:#2878f5;color:#fff;font-size:16px;font-weight:800}
+button.gray{background:#edf1f5;color:#29313b}button.dark{background:#171e2a}
+button.red{background:#fff0f0;color:#d94646;border:1px solid #ffd5d5}
+.names{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.name{padding:9px 13px;border:1px solid #e0e5eb;background:#fafbfc;border-radius:11px;font-weight:650}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#e5e9ee}
+.stat{background:#fff;padding:14px}.stat small{color:#7d8792;font-size:13px}.stat b{display:block;font-size:23px;margin-top:4px}
+.stat.red b{color:#df4c4c}.stat.green b{color:#19915a}
+.head{display:flex;justify-content:space-between;align-items:center;padding:14px;border-bottom:1px solid #e7ebef}
+.head b{font-size:18px}.head span{font-size:13px;color:#8a949f}
+.group{margin:12px;border:1px solid #e0e5eb;border-radius:14px;overflow:hidden}
+.grouphead{padding:12px 13px;background:#f7f9fb;display:flex;justify-content:space-between;font-weight:800}
+.tx{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:12px 13px;border-top:1px solid #edf0f3}
+.txmain{font-size:15px;line-height:1.45}.time{font-size:12px;color:#929ba6}.amt{font-size:18px;font-weight:850}.minus{color:#df4c4c}.plus{color:#19915a}
+.txbtn{height:34px;width:auto;padding:0 9px;border-radius:9px;background:#fff0f0;color:#d94646;font-size:13px;border:1px solid #ffd5d5}
+.sub{padding:9px 13px;text-align:right;background:#fbfcfd;border-top:1px solid #e7ebef;font-size:13px;font-weight:750}
+.empty{padding:28px 14px;text-align:center;color:#929ba5}
+.tools{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:12px}
+.tools button{height:44px;font-size:14px}
+.notice{font-size:12px;color:#8a949f;margin-top:8px;line-height:1.5}
+.principal{display:grid;grid-template-columns:1fr 1fr}
+.principal>div{padding:14px;border-right:1px solid #e7ebef}
+.principal>div:last-child{border:0}
+.money{font-size:24px;font-weight:900;margin-top:4px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#171e2a;color:white;padding:11px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;z-index:10}
+.toast.show{opacity:1}
+@media(max-width:430px){
+.row2{grid-template-columns:1fr}
+.principal{grid-template-columns:1fr 1fr}
+.tx{grid-template-columns:1fr auto auto}
 }
 </style>
 </head>
 
 <body>
+<div class="app">
 
-<div class="page">
+<h1>今晚流水记账</h1>
 
-    <!-- 顶部 -->
-    <div class="top">
+<div class="topbar">
+<span>实时系统时间</span>
+<b id="clock">--</b>
+</div>
 
-        <div class="top-title">
-            今晚流水账
-        </div>
+<!-- 客户 -->
+<div class="card form">
+<div class="title">客户</div>
 
-        <div class="top-time" id="currentTime">
-            --
-        </div>
+<input id="customer"
+placeholder="输入或选择客户姓名"
+autocomplete="off">
 
-        <div class="stats">
-
-            <div class="stat">
-                <div class="stat-label">当前本金余额</div>
-                <div class="stat-value" id="balance">¥0</div>
-            </div>
-
-            <div class="stat">
-                <div class="stat-label">今晚借出</div>
-                <div class="stat-value" id="loanTotal">¥0</div>
-            </div>
-
-            <div class="stat">
-                <div class="stat-label">今晚收回</div>
-                <div class="stat-value" id="returnTotal">¥0</div>
-            </div>
-
-            <div class="stat">
-                <div class="stat-label">其他收入</div>
-                <div class="stat-value" id="otherTotal">¥0</div>
-            </div>
-
-        </div>
-    </div>
-
-
-    <div class="content">
-
-        <!-- 客户 -->
-        <div class="card">
-
-            <div class="card-title-row">
-                <div class="card-title">客户</div>
-                <div class="card-sub">输入过的名字会自动保留</div>
-            </div>
-
-            <div class="field">
-
-                <div class="label">客户姓名</div>
-
-                <input
-                    id="customer"
-                    list="customerList"
-                    autocomplete="off"
-                    placeholder="例如：葵"
-                >
-
-                <datalist id="customerList"></datalist>
-
-            </div>
-
-            <div class="field">
-
-                <div class="label">类型</div>
-
-                <div class="type-buttons">
-
-                    <button
-                        id="loanBtn"
-                        class="type-btn active loan"
-                        onclick="selectType('loan')"
-                    >
-                        借出
-                    </button>
-
-                    <button
-                        id="returnBtn"
-                        class="type-btn"
-                        onclick="selectType('return')"
-                    >
-                        收回
-                    </button>
-
-                </div>
-
-            </div>
-
-            <div class="field">
-
-                <div class="label">金额</div>
-
-                <input
-                    id="amount"
-                    type="number"
-                    inputmode="decimal"
-                    step="0.01"
-                    placeholder="请输入金额"
-                >
-
-            </div>
-
-            <!-- 其他收入放在金额下面 -->
-            <div class="field">
-
-                <div class="label">
-                    其他收入
-                    <span style="font-weight:400;color:#9aa2ad;">
-                        （独立记录，不计入本金）
-                    </span>
-                </div>
-
-                <input
-                    id="otherIncome"
-                    type="number"
-                    inputmode="decimal"
-                    step="0.01"
-                    placeholder="没有就留空"
-                >
-
-            </div>
-
-            <div class="field">
-
-                <div class="label">备注</div>
-
-                <input
-                    id="note"
-                    type="text"
-                    placeholder="可以填写备注"
-                >
-
-            </div>
-
-            <!-- 保存放在输入金额下面的区域 -->
-            <button
-                class="save-btn"
-                onclick="saveRecord()"
-            >
-                保存并继续
-            </button>
-
-            <button
-                class="clear-btn"
-                onclick="clearForm()"
-            >
-                清空
-            </button>
-
-        </div>
-
-
-        <!-- 今晚本金 -->
-        <div class="card">
-
-            <div class="card-title-row">
-                <div class="card-title">今晚本金</div>
-                <div class="card-sub">今晚带来的本金</div>
-            </div>
-
-            <div class="principal-box">
-
-                <div class="principal-item">
-                    <div class="principal-label">
-                        今晚初始本金
-                    </div>
-
-                    <div class="principal-number">
-                        <span id="initialPrincipalText">¥0</span>
-                    </div>
-                </div>
-
-                <div class="principal-item">
-                    <div class="principal-label">
-                        加入本金
-                    </div>
-
-                    <div class="principal-number">
-                        <span id="addedPrincipalText">¥0</span>
-                    </div>
-                </div>
-
-                <div class="principal-item">
-                    <div class="principal-label">
-                        借出后本金
-                    </div>
-
-                    <div class="principal-number">
-                        <span id="loanPrincipalText">¥0</span>
-                    </div>
-                </div>
-
-                <div class="principal-item">
-                    <div class="principal-label">
-                        收回后本金
-                    </div>
-
-                    <div class="principal-number">
-                        <span id="returnPrincipalText">¥0</span>
-                    </div>
-                </div>
-
-            </div>
-
-
-            <!-- 设置今晚本金 -->
-
-            <div class="add-principal">
-
-                <div class="label">
-                    设置今晚带入本金
-                </div>
-
-                <div class="add-row">
-
-                    <input
-                        id="initialPrincipal"
-                        type="number"
-                        inputmode="decimal"
-                        placeholder="例如：30000"
-                    >
-
-                    <button onclick="setInitialPrincipal()">
-                        设置
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <!-- 加入本金 -->
-
-            <div class="add-principal">
-
-                <div class="label">
-                    加入本金
-                    <span style="font-weight:400;color:#9aa2ad;">
-                        例如昨天有人还3000
-                    </span>
-                </div>
-
-                <div class="add-row">
-
-                    <input
-                        id="addPrincipal"
-                        type="number"
-                        inputmode="decimal"
-                        placeholder="例如：3000"
-                    >
-
-                    <button onclick="addPrincipal()">
-                        加入
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- 今晚流水 -->
-
-        <div class="card">
-
-            <div class="ledger-header">
-
-                <div class="card-title">
-                    今晚流水
-                </div>
-
-                <div class="ledger-count">
-                    <span id="recordCount">0</span> 笔
-                </div>
-
-            </div>
-
-            <div id="ledger">
-
-                <div class="ledger-empty">
-                    暂无今晚流水
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
+<div id="names" class="names"></div>
 </div>
 
 
-<div class="toast" id="toast">
-    已保存
+<!-- 本金 -->
+<div class="card">
+
+<div class="principal">
+
+<div>
+<small>今晚带入本金</small>
+<div class="money" id="capitalIn">¥0</div>
+</div>
+
+<div>
+<small>当前本金余额</small>
+<div class="money" id="capitalNow">¥0</div>
+</div>
+
+</div>
+
+<div class="form" style="border-top:1px solid #e7ebef">
+
+<div class="title">本金操作</div>
+
+<div class="row2">
+
+<input
+id="capitalAmount"
+type="number"
+inputmode="decimal"
+placeholder="输入本金金额">
+
+<input
+id="capitalNote"
+placeholder="备注，例如：昨天回款">
+
+</div>
+
+<div class="btns">
+
+<button id="addCapital">
+加入本金
+</button>
+
+<button class="gray" id="resetCapital">
+重新设置本金
+</button>
+
+</div>
+
+<div class="notice">
+例如今晚带 ¥30,000；昨天有人回款 ¥3,000，可以用“加入本金”把这 ¥3,000 加回来。
+</div>
+
+</div>
+</div>
+
+
+<!-- 新增流水 -->
+<div class="card form">
+
+<div class="title">新增流水</div>
+
+<div class="row2">
+
+<input
+id="amount"
+type="number"
+inputmode="decimal"
+placeholder="输入金额">
+
+<input
+id="flowTime"
+type="datetime-local">
+
+</div>
+
+<div style="height:10px"></div>
+
+<input
+id="note"
+placeholder="备注（可不填）">
+
+<div class="btns">
+
+<button id="lend">
+借出
+</button>
+
+<button class="gray" id="repay">
+还款
+</button>
+
+</div>
+
+<div class="btns">
+
+<button class="dark" id="other">
+其他收入
+</button>
+
+<button class="gray" id="clear">
+清空输入
+</button>
+
+</div>
+
+</div>
+
+
+<!-- 今晚统计 -->
+<div class="card">
+
+<div class="head">
+<b>今晚统计</b>
+<span>自动计算</span>
+</div>
+
+<div class="stats">
+
+<div class="stat red">
+<small>今晚借出</small>
+<b id="sumLend">¥0</b>
+</div>
+
+<div class="stat green">
+<small>今晚回款</small>
+<b id="sumRepay">¥0</b>
+</div>
+
+<div class="stat">
+<small>其他收入</small>
+<b id="sumOther">¥0</b>
+</div>
+
+<div class="stat">
+<small>流水笔数</small>
+<b id="count">0</b>
+</div>
+
+</div>
+</div>
+
+
+<!-- 流水 -->
+<div class="card">
+
+<div class="head">
+<b>今晚流水</b>
+<span>按客户分组 · 每笔独立</span>
+</div>
+
+<div class="form" style="padding-bottom:6px">
+
+<input
+id="search"
+placeholder="搜索客户、备注或金额">
+
+</div>
+
+<div id="ledger"></div>
+
+<div class="tools">
+
+<button class="gray" id="undo">
+撤销删除
+</button>
+
+<button class="gray" id="export">
+导出备份
+</button>
+
+<button class="gray" id="clearAll">
+清空今晚流水
+</button>
+
+</div>
+
+</div>
+
+
+<div class="toast" id="toast"></div>
+
 </div>
 
 
 <script>
 
-/* ================================
-   数据
-================================ */
+const KEY="ledger_prototype_v3";
 
-const STORAGE_KEY = "tonight_ledger_v1";
+let data=JSON.parse(
+localStorage.getItem(KEY)
+||
+'{"capital":0,"flows":[],"names":[]}'
+);
 
-let data = {
-    initialPrincipal: 0,
-    addedPrincipal: 0,
-    records: [],
-    customers: []
-};
+let deleted=null;
 
-let currentType = "loan";
+const $=id=>document.getElementById(id);
 
-
-/* ================================
-   读取数据
-================================ */
-
-function loadData(){
-
-    try{
-
-        const saved = localStorage.getItem(STORAGE_KEY);
-
-        if(saved){
-
-            const obj = JSON.parse(saved);
-
-            if(obj && typeof obj === "object"){
-
-                data.initialPrincipal =
-                    Number(obj.initialPrincipal) || 0;
-
-                data.addedPrincipal =
-                    Number(obj.addedPrincipal) || 0;
-
-                data.records =
-                    Array.isArray(obj.records)
-                    ? obj.records
-                    : [];
-
-                data.customers =
-                    Array.isArray(obj.customers)
-                    ? obj.customers
-                    : [];
-
-            }
-
-        }
-
-    }catch(e){
-
-        console.log("读取数据失败",e);
-
-    }
-
-    render();
-}
-
-
-/* ================================
-   保存数据
-================================ */
-
-function saveData(){
-
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(data)
-    );
-
-}
-
-
-/* ================================
-   今天日期
-================================ */
-
-function todayKey(){
-
-    const d = new Date();
-
-    return (
-        d.getFullYear() +
-        "-" +
-        String(d.getMonth()+1).padStart(2,"0") +
-        "-" +
-        String(d.getDate()).padStart(2,"0")
-    );
-
-}
-
-
-/* ================================
-   当前时间
-================================ */
-
-function updateClock(){
-
-    const d = new Date();
-
-    const y = d.getFullYear();
-
-    const m = String(d.getMonth()+1).padStart(2,"0");
-
-    const day = String(d.getDate()).padStart(2,"0");
-
-    const h = String(d.getHours()).padStart(2,"0");
-
-    const min = String(d.getMinutes()).padStart(2,"0");
-
-    const sec = String(d.getSeconds()).padStart(2,"0");
-
-    document.getElementById("currentTime").textContent =
-        y + "年" + m + "月" + day + "日  " +
-        h + ":" + min + ":" + sec;
-
-}
-
-setInterval(updateClock,1000);
-
-updateClock();
-
-
-/* ================================
-   金额格式
-================================ */
 
 function money(n){
 
-    n = Number(n) || 0;
-
-    return "¥" + n.toLocaleString(
-        "zh-CN",
-        {
-            minimumFractionDigits:0,
-            maximumFractionDigits:2
-        }
-    );
+return "¥"+
+Number(n||0).toLocaleString(
+"zh-CN",
+{maximumFractionDigits:2}
+);
 
 }
 
 
-/* ================================
-   选择借出 / 收回
-================================ */
+function nowInput(){
 
-function selectType(type){
+const d=new Date();
 
-    currentType = type;
+const p=n=>String(n).padStart(2,"0");
 
-    const loanBtn =
-        document.getElementById("loanBtn");
-
-    const returnBtn =
-        document.getElementById("returnBtn");
-
-    loanBtn.classList.remove("active");
-
-    returnBtn.classList.remove("active");
-
-    if(type === "loan"){
-
-        loanBtn.classList.add("active");
-
-    }else{
-
-        returnBtn.classList.add("active");
-
-    }
+return d.getFullYear()
++"-"+p(d.getMonth()+1)
++"-"+p(d.getDate())
++"T"+p(d.getHours())
++":"+p(d.getMinutes());
 
 }
 
 
-/* ================================
-   保存客户名字
-================================ */
+function displayTime(v){
 
-function rememberCustomer(name){
+const d=new Date(v);
 
-    name = name.trim();
+if(isNaN(d))return v||"";
 
-    if(!name){
-        return;
-    }
+const p=n=>String(n).padStart(2,"0");
 
-    if(!data.customers.includes(name)){
-
-        data.customers.unshift(name);
-
-        if(data.customers.length > 100){
-            data.customers =
-                data.customers.slice(0,100);
-        }
-
-    }
+return `${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
 
 }
 
 
-/* ================================
-   客户名单
-================================ */
+function save(){
 
-function renderCustomers(){
+localStorage.setItem(
+KEY,
+JSON.stringify(data)
+);
 
-    const list =
-        document.getElementById("customerList");
-
-    list.innerHTML = "";
-
-    data.customers.forEach(name => {
-
-        const option =
-            document.createElement("option");
-
-        option.value = name;
-
-        list.appendChild(option);
-
-    });
+render();
 
 }
 
 
-/* ================================
-   保存一笔流水
-================================ */
+function toast(t){
 
-function saveRecord(){
+$("toast").textContent=t;
 
-    const customer =
-        document.getElementById("customer")
-        .value.trim();
+$("toast").classList.add("show");
 
-    const amount =
-        Number(
-            document.getElementById("amount").value
-        ) || 0;
-
-    const otherIncome =
-        Number(
-            document.getElementById("otherIncome").value
-        ) || 0;
-
-    const note =
-        document.getElementById("note").value.trim();
-
-
-    /* 必须至少输入客户+金额，或者其他收入 */
-
-    if(!customer && amount <= 0 && otherIncome <= 0){
-
-        showToast("请输入客户或金额");
-
-        return;
-
-    }
-
-
-    /* 普通流水 */
-
-    if(customer && amount > 0){
-
-        const now = new Date();
-
-        const record = {
-
-            id:
-                Date.now() +
-                "_" +
-                Math.random()
-                .toString(36)
-                .slice(2),
-
-            dateKey:todayKey(),
-
-            customer:customer,
-
-            type:currentType,
-
-            amount:amount,
-
-            note:note,
-
-            time:formatDateTime(now)
-
-        };
-
-        data.records.unshift(record);
-
-        rememberCustomer(customer);
-
-    }
-
-
-    /* 其他收入 */
-
-    if(otherIncome > 0){
-
-        const now = new Date();
-
-        const record = {
-
-            id:
-                Date.now() +
-                "_" +
-                Math.random()
-                .toString(36)
-                .slice(2),
-
-            dateKey:todayKey(),
-
-            customer:
-                customer || "其他收入",
-
-            type:"other",
-
-            amount:otherIncome,
-
-            note:
-                note || "其他收入",
-
-            time:formatDateTime(now)
-
-        };
-
-        data.records.unshift(record);
-
-        if(customer){
-
-            rememberCustomer(customer);
-
-        }
-
-    }
-
-
-    saveData();
-
-    render();
-
-    /* 保存后马上清空金额，方便下一笔 */
-
-    document.getElementById("amount").value = "";
-
-    document.getElementById("otherIncome").value = "";
-
-    document.getElementById("note").value = "";
-
-    /*
-       客户姓名故意不清空。
-       下一笔可以继续使用这个名字，
-       也可以直接换另外一个名字。
-    */
-
-    document.getElementById("amount").focus();
-
-    showToast("已保存，流水已更新");
+setTimeout(
+()=>$("toast").classList.remove("show"),
+1500
+);
 
 }
 
 
-/* ================================
-   日期时间
-================================ */
+function systemClock(){
 
-function formatDateTime(d){
+const d=new Date();
 
-    const y = d.getFullYear();
+const p=n=>String(n).padStart(2,"0");
 
-    const m = String(d.getMonth()+1).padStart(2,"0");
-
-    const day = String(d.getDate()).padStart(2,"0");
-
-    const h = String(d.getHours()).padStart(2,"0");
-
-    const min = String(d.getMinutes()).padStart(2,"0");
-
-    const sec = String(d.getSeconds()).padStart(2,"0");
-
-    return (
-        y + "-" +
-        m + "-" +
-        day + " " +
-        h + ":" +
-        min + ":" +
-        sec
-    );
+$("clock").textContent=
+`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
 
 }
 
 
-/* ================================
-   设置初始本金
-================================ */
+function renderNames(){
 
-function setInitialPrincipal(){
-
-    const input =
-        document.getElementById("initialPrincipal");
-
-    const amount =
-        Number(input.value) || 0;
-
-    if(amount < 0){
-
-        showToast("本金不能小于0");
-
-        return;
-
-    }
-
-    data.initialPrincipal = amount;
-
-    saveData();
-
-    render();
-
-    input.value = "";
-
-    showToast("今晚本金已设置");
+$("names").innerHTML=
+data.names
+.slice(0,12)
+.map(n=>
+`<button class="name"
+onclick="pickName('${n.replace(/'/g,"&#39;")}')">
+${n}
+</button>`
+)
+.join("");
 
 }
 
 
-/* ================================
-   加入本金
-================================ */
+function pickName(n){
 
-function addPrincipal(){
+$("customer").value=n;
 
-    const input =
-        document.getElementById("addPrincipal");
-
-    const amount =
-        Number(input.value) || 0;
-
-    if(amount <= 0){
-
-        showToast("请输入加入本金金额");
-
-        return;
-
-    }
-
-    data.addedPrincipal += amount;
-
-    saveData();
-
-    render();
-
-    input.value = "";
-
-    showToast("本金已加入");
+toast("已选择："+n);
 
 }
 
-
-/* ================================
-   计算今晚流水
-================================ */
-
-function getTonightRecords(){
-
-    const key = todayKey();
-
-    return data.records.filter(
-        r => r.dateKey === key
-    );
-
-}
-
-
-/* ================================
-   计算统计
-================================ */
-
-function calculate(){
-
-    const records =
-        getTonightRecords();
-
-    let loan = 0;
-
-    let returned = 0;
-
-    let other = 0;
-
-    records.forEach(r => {
-
-        if(r.type === "loan"){
-
-            loan += Number(r.amount) || 0;
-
-        }
-
-        else if(r.type === "return"){
-
-            returned += Number(r.amount) || 0;
-
-        }
-
-        else if(r.type === "other"){
-
-            other += Number(r.amount) || 0;
-
-        }
-
-    });
-
-
-    const balance =
-        data.initialPrincipal +
-        data.addedPrincipal -
-        loan +
-        returned;
-
-
-    return {
-        loan,
-        returned,
-        other,
-        balance
-    };
-
-}
-
-
-/* ================================
-   渲染
-================================ */
 
 function render(){
 
-    const stats = calculate();
+renderNames();
 
-    document.getElementById("balance").textContent =
-        money(stats.balance);
-
-    document.getElementById("loanTotal").textContent =
-        money(stats.loan);
-
-    document.getElementById("returnTotal").textContent =
-        money(stats.returned);
-
-    document.getElementById("otherTotal").textContent =
-        money(stats.other);
+$("flowTime").value=
+$("flowTime").value||nowInput();
 
 
-    document.getElementById("initialPrincipalText").textContent =
-        money(data.initialPrincipal);
-
-    document.getElementById("addedPrincipalText").textContent =
-        money(data.addedPrincipal);
-
-    const loanPrincipal =
-        data.initialPrincipal +
-        data.addedPrincipal -
-        stats.loan;
-
-    const returnPrincipal =
-        loanPrincipal +
-        stats.returned;
-
-    document.getElementById("loanPrincipalText").textContent =
-        money(loanPrincipal);
-
-    document.getElementById("returnPrincipalText").textContent =
-        money(returnPrincipal);
+$("capitalIn").textContent=
+money(data.capital);
 
 
-    renderCustomers();
-
-    renderLedger();
-
-}
-
-
-/* ================================
-   流水
-================================ */
-
-function renderLedger(){
-
-    const ledger =
-        document.getElementById("ledger");
-
-    const records =
-        getTonightRecords();
-
-    document.getElementById("recordCount").textContent =
-        records.length;
+const balance=
+data.capital
+-
+data.flows
+.filter(x=>x.type==="lend")
+.reduce((a,x)=>a+x.amount,0)
++
+data.flows
+.filter(x=>x.type==="repay"||x.type==="other")
+.reduce((a,x)=>a+x.amount,0);
 
 
-    if(records.length === 0){
-
-        ledger.innerHTML =
-            '<div class="ledger-empty">暂无今晚流水</div>';
-
-        return;
-
-    }
+$("capitalNow").textContent=
+money(balance);
 
 
-    ledger.innerHTML = "";
+let lend=0,
+repay=0,
+other=0;
 
 
-    records.forEach(record => {
+data.flows.forEach(x=>{
 
-        const div =
-            document.createElement("div");
+if(x.type==="lend")
+lend+=x.amount;
 
-        div.className = "record";
+if(x.type==="repay")
+repay+=x.amount;
 
+if(x.type==="other")
+other+=x.amount;
 
-        let typeText = "";
-
-        if(record.type === "loan"){
-            typeText = "借出";
-        }
-        else if(record.type === "return"){
-            typeText = "收回";
-        }
-        else{
-            typeText = "其他收入";
-        }
+});
 
 
-        div.innerHTML = `
+$("sumLend").textContent=money(lend);
 
-            <div class="record-top">
+$("sumRepay").textContent=money(repay);
 
-                <div class="record-name">
-                    ${escapeHtml(record.customer)}
-                </div>
+$("sumOther").textContent=money(other);
 
-                <div class="record-type ${record.type}">
-                    ${typeText}
-                </div>
-
-            </div>
-
-            <div class="record-amount ${record.type}">
-                ${record.type === "loan" ? "-" : "+"}${money(record.amount)}
-            </div>
-
-            <div class="record-time">
-                ${record.time}
-            </div>
-
-            ${
-                record.note
-                ?
-                `<div class="record-note">
-                    备注：${escapeHtml(record.note)}
-                </div>`
-                :
-                ""
-            }
-
-            <button
-                class="delete-record"
-                onclick="deleteRecord('${record.id}')"
-            >
-                删除这一笔
-            </button>
-        `;
+$("count").textContent=data.flows.length;
 
 
-        ledger.appendChild(div);
+const q=
+$("search").value
+.trim()
+.toLowerCase();
 
-    });
 
-}
+const list=
+data.flows.filter(x=>
+!q ||
+`${x.customer} ${x.note} ${x.amount}`
+.toLowerCase()
+.includes(q)
+);
 
 
-/* ================================
-   删除流水
-================================ */
+const groups={};
 
-function deleteRecord(id){
 
-    const ok =
-        confirm("确定删除这一笔流水吗？");
+list.forEach(x=>
+(groups[x.customer]??=[]).push(x)
+);
 
-    if(!ok){
-        return;
-    }
 
-    data.records =
-        data.records.filter(
-            r => r.id !== id
-        );
+let out="";
 
-    saveData();
 
-    render();
+Object.entries(groups)
+.forEach(([name,arr])=>{
 
-    showToast("已删除");
+let bal=
+arr.reduce(
+(a,x)=>
+a+
+(x.type==="lend"
+?x.amount
+:-x.amount),
+0
+);
+
+
+out+=
+`<div class="group">
+
+<div class="grouphead">
+<span>${name}</span>
+<span>
+${bal>=0?"欠 ":"结余 "}
+${money(Math.abs(bal))}
+</span>
+</div>`;
+
+
+arr.forEach(x=>{
+
+const label=
+x.type==="lend"
+?"借出"
+:x.type==="repay"
+?"还款"
+:"其他收入";
+
+
+out+=
+`<div class="tx">
+
+<div class="txmain">
+${label}${x.note?" · "+x.note:""}
+<br>
+<span class="time">
+${displayTime(x.time)}
+</span>
+</div>
+
+<div class="amt ${x.type==="lend"?"minus":"plus"}">
+${x.type==="lend"?"-":"+"}${money(x.amount).slice(1)}
+</div>
+
+<button
+class="txbtn"
+onclick="delFlow('${x.id}')">
+删除
+</button>
+
+</div>`;
+
+});
+
+
+out+=
+`<div class="sub">
+本组当前：
+${bal>=0?"欠款 ":"结余 "}
+${money(Math.abs(bal))}
+</div>
+
+</div>`;
+
+});
+
+
+$("ledger").innerHTML=
+out||
+'<div class="empty">今晚还没有流水</div>';
 
 }
 
 
-/* ================================
-   清空输入
-================================ */
+function addFlow(type){
 
-function clearForm(){
+const customer=
+$("customer").value.trim();
 
-    document.getElementById("customer").value = "";
-
-    document.getElementById("amount").value = "";
-
-    document.getElementById("otherIncome").value = "";
-
-    document.getElementById("note").value = "";
-
-    document.getElementById("amount").blur();
-
-}
+const amount=
+Number($("amount").value);
 
 
-/* ================================
-   HTML 安全处理
-================================ */
+if(!customer){
 
-function escapeHtml(text){
+toast("先输入客户姓名");
 
-    return String(text)
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
+$("customer").focus();
+
+return;
 
 }
 
 
-/* ================================
-   提示
-================================ */
+if(!amount||amount<=0){
 
-let toastTimer = null;
+toast("请输入正确金额");
 
-function showToast(text){
+$("amount").focus();
 
-    const toast =
-        document.getElementById("toast");
-
-    toast.textContent = text;
-
-    toast.classList.add("show");
-
-    clearTimeout(toastTimer);
-
-    toastTimer =
-        setTimeout(() => {
-
-            toast.classList.remove("show");
-
-        },1800);
+return;
 
 }
 
 
-/* ================================
-   启动
-================================ */
+const flow={
 
-loadData();
+id:Date.now()+"",
+
+customer,
+
+amount,
+
+type,
+
+time:$("flowTime").value||nowInput(),
+
+note:$("note").value.trim()
+
+};
+
+
+data.flows.push(flow);
+
+
+if(!data.names.includes(customer))
+data.names.unshift(customer);
+
+
+data.names=data.names.slice(0,30);
+
+
+$("amount").value="";
+
+$("note").value="";
+
+$("flowTime").value=nowInput();
+
+
+save();
+
+toast("已保存，流水已更新");
+
+
+window.scrollTo({
+top:document.body.scrollHeight,
+behavior:"smooth"
+});
+
+}
+
+
+function delFlow(id){
+
+const i=
+data.flows.findIndex(
+x=>x.id===id
+);
+
+
+if(i<0)return;
+
+
+deleted=
+data.flows.splice(i,1)[0];
+
+
+save();
+
+toast("已删除，可点“撤销删除”恢复");
+
+}
+
+
+$("lend").onclick=
+()=>addFlow("lend");
+
+
+$("repay").onclick=
+()=>addFlow("repay");
+
+
+$("other").onclick=
+()=>addFlow("other");
+
+
+$("clear").onclick=()=>{
+
+$("amount").value="";
+
+$("note").value="";
+
+$("flowTime").value=nowInput();
+
+};
+
+
+$("addCapital").onclick=()=>{
+
+const n=
+Number($("capitalAmount").value);
+
+
+if(!n||n<=0){
+
+toast("请输入本金金额");
+
+return;
+
+}
+
+
+data.capital+=n;
+
+
+$("capitalAmount").value="";
+
+$("capitalNote").value="";
+
+
+save();
+
+toast("本金已加入");
+
+};
+
+
+$("resetCapital").onclick=()=>{
+
+const n=
+Number(
+prompt(
+"请输入今晚带入本金：",
+data.capital||0
+)
+);
+
+
+if(!isNaN(n)&&n>=0){
+
+data.capital=n;
+
+save();
+
+toast("本金已重新设置");
+
+}
+
+};
+
+
+$("undo").onclick=()=>{
+
+if(!deleted){
+
+toast("没有可撤销的删除");
+
+return;
+
+}
+
+
+data.flows.push(deleted);
+
+deleted=null;
+
+save();
+
+toast("已恢复");
+
+};
+
+
+$("clearAll").onclick=()=>{
+
+if(
+confirm(
+"确定清空今晚全部流水？本金不会删除。"
+)
+){
+
+data.flows=[];
+
+save();
+
+toast("今晚流水已清空");
+
+}
+
+};
+
+
+$("search").oninput=render;
+
+
+$("export").onclick=()=>{
+
+const blob=
+new Blob(
+[JSON.stringify(data,null,2)],
+{type:"application/json"}
+);
+
+
+const a=
+document.createElement("a");
+
+
+a.href=
+URL.createObjectURL(blob);
+
+
+a.download=
+"今晚流水备份-"+
+new Date()
+.toISOString()
+.slice(0,10)+
+".json";
+
+
+a.click();
+
+
+URL.revokeObjectURL(a.href);
+
+
+toast("备份文件已生成");
+
+};
+
+
+$("flowTime").value=
+nowInput();
+
+
+setInterval(
+systemClock,
+1000
+);
+
+
+systemClock();
+
+render();
 
 </script>
 
