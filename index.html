@@ -3,584 +3,655 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fa">
 <title>今晚流水记账</title>
 
 <style>
 *{
-    box-sizing:border-box;
-    -webkit-tap-highlight-color:transparent;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
 }
 
 :root{
-    --bg:#f5f7fa;
-    --card:rgba(255,255,255,.97);
-    --ink:#121826;
-    --muted:#8b95a5;
-    --line:#e8ebf0;
-    --blue:#315ee8;
-    --blue2:#173fba;
-    --green:#159463;
-    --greenbg:#edf9f3;
-    --red:#d94a52;
+  --green:#159447;
+  --green2:#087b39;
+  --greenbg:#eef9f2;
+  --red:#e53935;
+  --blue:#1267d6;
+  --purple:#7056d8;
+  --ink:#17202d;
+  --muted:#8c96a4;
+  --line:#e5e9ee;
+  --bg:#f5f7fa;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Display",
+    "PingFang SC",
+    "Helvetica Neue",
+    "Microsoft YaHei",
+    sans-serif;
 }
 
 body{
-    margin:0;
-    color:var(--ink);
-    font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "SF Pro Display",
-        "PingFang SC",
-        "Microsoft YaHei",
-        sans-serif;
-
-    background:
-        radial-gradient(
-            700px 300px at 50% -80px,
-            rgba(49,94,232,.13),
-            transparent 70%
-        ),
-        linear-gradient(
-            180deg,
-            #fafbfc 0,
-            #f1f4f8 100%
-        );
+  min-height:100vh;
 }
 
 .app{
-    max-width:760px;
-    margin:auto;
-    padding:15px 12px 44px;
+  width:min(100%,780px);
+  margin:auto;
+  padding:16px 12px 45px;
 }
 
-h1{
-    margin:3px 4px 2px;
-    font-size:27px;
-    letter-spacing:-.8px;
-    font-weight:900;
+/* 顶部 */
+
+.top{
+  text-align:center;
+  padding:4px 0 14px;
 }
 
-.topbar{
-    margin:0 5px 17px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    color:#98a1af;
-    font-size:12px;
+.top h1{
+  margin:0;
+  font-size:27px;
+  font-weight:900;
+  letter-spacing:-1px;
 }
 
-.topbar b{
-    font-size:12px;
-    color:#5e6878;
-    font-variant-numeric:tabular-nums;
+.clock{
+  margin-top:5px;
+  font-size:14px;
+  color:#8c96a4;
 }
+
+.clock b{
+  color:var(--green);
+  font-variant-numeric:tabular-nums;
+}
+
+/* 卡片 */
 
 .card{
-    background:var(--card);
-    border:1px solid rgba(225,230,237,.9);
-    border-radius:22px;
-    overflow:hidden;
-    margin-bottom:15px;
-
-    box-shadow:
-        0 12px 34px rgba(20,31,50,.065),
-        0 2px 6px rgba(20,31,50,.035);
-
-    backdrop-filter:blur(10px);
+  background:#fff;
+  border:1px solid #e6e9ee;
+  border-radius:21px;
+  margin-bottom:13px;
+  overflow:hidden;
+  box-shadow:
+    0 6px 20px rgba(30,45,65,.065),
+    0 1px 3px rgba(30,45,65,.03);
 }
 
-.form{
-    padding:18px;
+.section{
+  padding:16px;
 }
 
-.title{
-    font-size:18px;
-    font-weight:900;
-    margin-bottom:12px;
-    letter-spacing:-.25px;
+.section-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  font-size:19px;
+  font-weight:900;
+  margin-bottom:12px;
 }
 
-/* 客户 + 新增流水 */
-.operation-shell{
-    padding:0;
-    overflow:hidden;
+.green-title{
+  color:var(--green);
 }
 
-.operation-shell .customer-form,
-.operation-shell .entry-form{
-    margin:0!important;
-    border:0!important;
-    box-shadow:none!important;
+.section-right{
+  color:var(--green);
+  font-size:13px;
+  font-weight:700;
 }
 
-.operation-shell .entry-form{
-    border-top:1px solid #e8ebf0!important;
-    background:
-        linear-gradient(
-            180deg,
-            #fff,
-            #fbfcfe
-        );
-}
-
-/* 输入框 */
+/* 输入 */
 
 input{
-    width:100%;
-    height:54px;
-
-    border:1px solid #dce2ea;
-    border-radius:16px;
-
-    background:#fafbfd;
-
-    padding:0 16px;
-
-    outline:0;
-
-    font-size:16px;
-    color:var(--ink);
-
-    transition:.2s;
-
-    box-shadow:
-        inset 0 1px 2px rgba(0,0,0,.018);
+  width:100%;
+  height:52px;
+  border:1px solid #dce1e7;
+  border-radius:15px;
+  background:#fff;
+  padding:0 15px;
+  font-size:16px;
+  color:var(--ink);
+  outline:none;
+  transition:.18s;
 }
 
 input:focus{
-    background:#fff;
-
-    border-color:#6f98f5;
-
-    box-shadow:
-        0 0 0 4px rgba(49,94,232,.09);
+  border-color:#70bb8b;
+  box-shadow:
+    0 0 0 4px rgba(21,148,71,.09);
 }
 
 input::placeholder{
-    color:#adb5c1;
-}
-
-.row2{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:11px;
-}
-
-/* 按钮 */
-
-.btns{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:11px;
-    margin-top:11px;
-}
-
-button{
-    height:53px;
-
-    border:0;
-    border-radius:16px;
-
-    color:#fff;
-
-    font-size:16px;
-    font-weight:850;
-
-    background:
-        linear-gradient(
-            145deg,
-            #4777f5,
-            #234fcf
-        );
-
-    box-shadow:
-        0 8px 17px rgba(35,79,207,.18);
-
-    transition:.15s;
-}
-
-button:active{
-    transform:scale(.98);
-}
-
-button.gray{
-    background:
-        linear-gradient(
-            180deg,
-            #f1f3f6,
-            #e9edf2
-        );
-
-    color:#3b4555;
-
-    box-shadow:none;
-}
-
-button.dark{
-    background:
-        linear-gradient(
-            145deg,
-            #252d3b,
-            #101722
-        );
-
-    box-shadow:
-        0 8px 17px rgba(16,23,34,.16);
+  color:#aeb5bf;
 }
 
 /* 客户名字 */
 
-.names{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin-top:11px;
+.name-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-top:10px;
 }
 
-.name{
-    height:41px;
+.name-btn{
+  height:40px;
+  padding:0 16px;
+  border-radius:12px;
 
-    padding:0 15px;
+  border:1px solid #cde9d7;
 
-    border-radius:13px;
+  background:
+    linear-gradient(
+      180deg,
+      #f5fcf7,
+      #e8f7ed
+    );
 
-    border:1px solid #bfe6d0;
+  color:var(--green2);
 
-    background:
-        linear-gradient(
-            145deg,
-            #f6fdf9,
-            #e9f8f0
-        );
+  font-size:14px;
+  font-weight:850;
 
-    color:#118958;
-
-    font-weight:850;
-
-    box-shadow:
-        0 3px 9px rgba(21,148,99,.08);
+  box-shadow:
+    0 3px 8px rgba(21,148,71,.07);
 }
 
-.name:active{
-    background:#dff4e8;
+.name-btn.active{
+  color:#fff;
+
+  background:
+    linear-gradient(
+      145deg,
+      #20ad60,
+      #098543
+    );
+
+  border-color:#098543;
+
+  box-shadow:
+    0 6px 14px rgba(21,148,71,.20);
+}
+
+/* 两列 */
+
+.grid2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+/* 金额输入 */
+
+.money-input{
+  position:relative;
+}
+
+.money-input span{
+  position:absolute;
+  right:15px;
+  top:14px;
+  color:#5d6775;
+  font-size:18px;
+}
+
+/* 类型按钮 */
+
+.type-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:10px;
+}
+
+.type-btn{
+  height:51px;
+  border-radius:14px;
+
+  border:1px solid #dce1e7;
+
+  background:#fff;
+
+  font-size:16px;
+  font-weight:850;
+}
+
+.type-btn.lend.selected{
+  color:#fff;
+
+  background:
+    linear-gradient(
+      145deg,
+      #19ad5e,
+      #0c8744
+    );
+
+  border-color:#0c8744;
+}
+
+.type-btn.repay.selected{
+  color:var(--red);
+  border:1.5px solid #ef4a45;
+  background:#fff;
+}
+
+.type-btn.other.selected{
+  color:var(--blue);
+  border:1.5px solid #3981e5;
+  background:#fff;
+}
+
+/* 按钮 */
+
+.actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:10px;
+}
+
+.btn{
+  height:50px;
+  border:0;
+  border-radius:14px;
+  font-size:16px;
+  font-weight:900;
+}
+
+.primary{
+  color:#fff;
+
+  background:
+    linear-gradient(
+      145deg,
+      #18aa5d,
+      #0b873f
+    );
+
+  box-shadow:
+    0 7px 14px rgba(15,137,65,.18);
+}
+
+.secondary{
+  background:#f3f5f7;
+  color:#303845;
+}
+
+.outline{
+  background:#fff;
+  border:1px solid #cfe5d7;
+  color:var(--green);
+}
+
+.danger{
+  background:#fff4f3;
+  border:1px solid #ffd8d4;
+  color:var(--red);
+}
+
+button:active{
+  transform:scale(.98);
 }
 
 /* 本金 */
 
-.principal{
-    display:grid;
-    grid-template-columns:1fr 1fr;
+.capital-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
 
-    background:
-        linear-gradient(
-            180deg,
-            #fbfcfe,
-            #f7f9fb
-        );
+  border:1px solid var(--line);
+  border-radius:13px;
+
+  overflow:hidden;
+
+  margin-bottom:12px;
 }
 
-.principal>div{
-    padding:18px;
-    border-right:1px solid #e7ebf0;
+.capital-item{
+  padding:13px 10px;
+  text-align:center;
 }
 
-.principal>div:last-child{
-    border:0;
+.capital-item + .capital-item{
+  border-left:1px solid var(--line);
 }
 
-.principal small{
-    font-size:12px;
-    color:var(--muted);
+.capital-item small{
+  display:block;
+  color:#697483;
+  font-size:13px;
+  margin-bottom:4px;
 }
 
-.money{
-    font-size:27px;
-    font-weight:900;
-    letter-spacing:-.7px;
-    margin-top:5px;
+.capital-item b{
+  font-size:24px;
+  color:var(--green);
+  font-variant-numeric:tabular-nums;
 }
 
-.notice{
-    margin-top:10px;
-
-    color:#8b95a3;
-
-    font-size:12px;
-
-    line-height:1.55;
-}
-
-/* 标题 */
-
-.head{
-    padding:16px 18px;
-
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-
-    border-bottom:1px solid #e9edf2;
-
-    background:
-        linear-gradient(
-            180deg,
-            #fff,
-            #fcfdff
-        );
-}
-
-.head b{
-    font-size:19px;
-    font-weight:900;
-}
-
-.head span{
-    font-size:12px;
-    color:#9aa3af;
+.help{
+  margin-top:9px;
+  font-size:12px;
+  line-height:1.6;
+  color:#8993a1;
 }
 
 /* 统计 */
 
 .stats{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-
-    gap:1px;
-
-    background:#e8ecf1;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  padding:10px;
 }
 
 .stat{
-    padding:17px 18px;
-    background:#fff;
+  border-radius:12px;
+  padding:11px 7px;
+  text-align:center;
+  border:1px solid #e8ebef;
 }
 
 .stat small{
-    font-size:12px;
-    color:#8b95a3;
+  display:block;
+  font-size:12px;
+  margin-bottom:5px;
 }
 
 .stat b{
-    display:block;
-
-    margin-top:5px;
-
-    font-size:25px;
-
-    font-weight:900;
-
-    font-variant-numeric:tabular-nums;
+  font-size:18px;
+  font-variant-numeric:tabular-nums;
 }
 
-.stat.red b{
-    color:var(--red);
+.stat.red{
+  background:#fff7f6;
+  color:var(--red);
+  border-color:#f5dedd;
 }
 
-.stat.green b{
-    color:var(--green);
+.stat.green{
+  background:#f4fbf6;
+  color:var(--green);
+  border-color:#d9efdf;
+}
+
+.stat.blue{
+  background:#f4f8ff;
+  color:var(--blue);
+  border-color:#dce7fa;
+}
+
+.stat.purple{
+  background:#f8f5ff;
+  color:var(--purple);
+  border-color:#e8defb;
+}
+
+/* 搜索 */
+
+.search{
+  padding:11px 14px;
+  border-bottom:1px solid var(--line);
 }
 
 /* 客户流水 */
 
-.group{
-    margin:12px;
-
-    border:1px solid #e1e6ed;
-
-    border-radius:17px;
-
-    overflow:hidden;
-
-    box-shadow:
-        0 4px 13px rgba(23,32,50,.035);
+.customer-group{
+  margin:10px;
+  border:1px solid #e2e7ec;
+  border-radius:15px;
+  overflow:hidden;
 }
 
-.grouphead{
-    padding:14px;
+.group-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 13px;
 
-    background:
-        linear-gradient(
-            180deg,
-            #fafbfd,
-            #f5f7fa
-        );
+  background:#fafbfd;
 
-    display:flex;
-    justify-content:space-between;
-
-    font-weight:900;
+  font-weight:900;
 }
 
-.tx{
-    display:grid;
+/* 这里客户名绿色 */
 
-    grid-template-columns:
-        1fr
-        auto
-        auto;
-
-    gap:9px;
-
-    align-items:center;
-
-    padding:13px 14px;
-
-    border-top:1px solid #edf0f4;
+.group-head .customer-name{
+  color:var(--green);
+  font-size:17px;
+  font-weight:950;
 }
 
-.txmain{
-    font-size:15px;
-    line-height:1.5;
+.group-head .debt{
+  font-size:13px;
 }
 
-.time{
-    font-size:12px;
-    color:#99a2af;
+/* 每笔流水 */
+
+.flow{
+  display:grid;
+
+  grid-template-columns:
+    55px
+    1fr
+    auto
+    34px;
+
+  gap:8px;
+
+  align-items:center;
+
+  padding:10px 11px;
+
+  border-top:1px solid #edf0f3;
 }
 
-.amt{
-    font-size:19px;
-    font-weight:900;
-    font-variant-numeric:tabular-nums;
+.badge{
+  width:54px;
+  text-align:center;
+
+  border-radius:10px;
+
+  padding:5px 2px;
+
+  font-size:12px;
+  font-weight:850;
 }
 
-.minus{
-    color:var(--red);
+.badge.lend{
+  background:#fff0ef;
+  color:var(--red);
 }
 
-.plus{
-    color:var(--green);
+.badge.repay{
+  background:#effaf2;
+  color:var(--green);
+}
+
+.badge.other{
+  background:#eef5ff;
+  color:var(--blue);
+}
+
+.flow-main{
+  min-width:0;
+}
+
+.flow-note{
+  font-size:14px;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.flow-time{
+  font-size:11px;
+  color:#9aa3ae;
+
+  margin-top:3px;
+
+  font-variant-numeric:tabular-nums;
+}
+
+.flow-amount{
+  font-size:16px;
+  font-weight:900;
+
+  white-space:nowrap;
+
+  font-variant-numeric:tabular-nums;
+}
+
+.flow-amount.minus{
+  color:var(--red);
+}
+
+.flow-amount.plus{
+  color:var(--green);
 }
 
 /* 删除 */
 
-.txbtn{
-    width:auto;
+.del{
+  width:34px;
+  height:34px;
 
-    height:34px;
+  border:1px solid #ffd9d5;
 
-    padding:0 10px;
+  background:#fff7f6;
 
-    border-radius:10px;
+  color:var(--red);
 
-    background:#fff3f3;
+  border-radius:10px;
 
-    color:#d44850;
-
-    border:1px solid #ffd9da;
-
-    box-shadow:none;
-
-    font-size:12px;
+  font-size:15px;
 }
 
-/* 小计 */
+/* 客户小计 */
 
-.sub{
-    padding:10px 14px;
+.group-total{
+  padding:8px 12px;
 
-    background:#fafbfd;
+  text-align:right;
 
-    border-top:1px solid #e7ebef;
+  border-top:1px solid var(--line);
 
-    text-align:right;
+  font-size:12px;
 
-    color:#5e6877;
+  color:#667180;
 
-    font-size:13px;
-
-    font-weight:800;
+  background:#fbfcfd;
 }
 
 /* 没有流水 */
 
 .empty{
-    padding:35px 14px;
-
-    text-align:center;
-
-    color:#9aa3af;
+  text-align:center;
+  padding:32px 10px;
+  color:#9aa3ae;
+  font-size:14px;
+  line-height:1.7;
 }
 
-/* 底部工具 */
+/* 底部 */
 
-.tools{
-    display:grid;
+.bottom-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
 
-    grid-template-columns:
-        1fr 1fr 1fr;
-
-    gap:8px;
-
-    padding:12px;
+  padding:12px;
 }
 
-.tools button{
-    height:43px;
-    font-size:13px;
+.bottom-actions button{
+  height:43px;
+
+  border-radius:14px;
+
+  background:#fff;
+
+  border:1px solid #e2e6eb;
+
+  font-weight:800;
+
+  color:#46505e;
 }
 
 /* 提示 */
 
 .toast{
-    position:fixed;
+  position:fixed;
 
-    left:50%;
-    bottom:25px;
+  left:50%;
+  bottom:28px;
 
-    transform:
-        translateX(-50%);
+  transform:translateX(-50%);
 
-    padding:12px 18px;
+  background:#18202c;
 
-    border-radius:15px;
+  color:#fff;
 
-    background:#121826;
+  padding:11px 17px;
 
-    color:#fff;
+  border-radius:12px;
 
-    font-size:14px;
+  font-size:14px;
 
-    box-shadow:
-        0 12px 28px rgba(18,24,38,.22);
+  opacity:0;
 
-    opacity:0;
+  pointer-events:none;
 
-    pointer-events:none;
+  transition:.2s;
 
-    transition:.2s;
+  z-index:99;
 
-    z-index:20;
+  white-space:nowrap;
 }
 
 .toast.show{
-    opacity:1;
+  opacity:1;
 }
 
 /* 手机 */
 
-@media(max-width:430px){
+@media(max-width:520px){
 
-    .app{
-        padding:12px 10px 35px;
-    }
+  .app{
+    padding:13px 10px 35px;
+  }
 
-    h1{
-        font-size:25px;
-    }
+  .top h1{
+    font-size:25px;
+  }
 
-    .row2{
-        grid-template-columns:1fr;
-    }
+  .grid2{
+    grid-template-columns:1fr;
+  }
 
-    .principal>div{
-        padding:16px 14px;
-    }
+  .stats{
+    grid-template-columns:1fr 1fr;
+  }
 
-    .money{
-        font-size:24px;
-    }
+  .flow{
+    grid-template-columns:54px 1fr auto 34px;
+  }
+
+  .flow-amount{
+    font-size:15px;
+  }
 
 }
 </style>
@@ -591,1237 +662,1591 @@ button.dark{
 
 <div class="app">
 
-<h1>今晚流水记账</h1>
+  <!-- 顶部 -->
 
-<div class="topbar">
+  <div class="top">
 
-<span>实时系统时间</span>
+    <h1>今晚流水记账</h1>
 
-<b id="clock">--</b>
+    <div class="clock">
+      实时系统时间　
+      <b id="clock">--:--:--</b>
+    </div>
+
+  </div>
+
+
+  <!-- 客户 -->
+
+  <div class="card">
+
+    <div class="section">
+
+      <div class="section-title green-title">
+
+        <span>♙　客户</span>
+
+        <button
+          class="name-btn"
+          style="height:34px"
+          onclick="addCustomer()">
+
+          ＋ 新增客户
+
+        </button>
+
+      </div>
+
+
+      <input
+        id="customerInput"
+        autocomplete="off"
+        placeholder="输入或选择客户姓名">
+
+
+      <div
+        id="nameList"
+        class="name-list">
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- 新增流水 -->
+
+  <div class="card">
+
+    <div class="section">
+
+      <div class="section-title green-title">
+
+        <span>◎　新增流水</span>
+
+        <span class="section-right">
+          保存后立即显示
+        </span>
+
+      </div>
+
+
+      <div class="grid2">
+
+        <div class="money-input">
+
+          <input
+            id="amount"
+            type="number"
+            inputmode="decimal"
+            placeholder="输入金额">
+
+          <span>¥</span>
+
+        </div>
+
+
+        <input
+          id="flowTime"
+          type="datetime-local">
+
+      </div>
+
+
+      <input
+        id="note"
+        style="margin-top:10px"
+        placeholder="备注（可不填）">
+
+
+      <div class="type-row">
+
+        <button
+          class="type-btn lend selected"
+          id="lendBtn"
+          onclick="selectType('lend')">
+
+          ↑　借出
+
+        </button>
+
+
+        <button
+          class="type-btn repay"
+          id="repayBtn"
+          onclick="selectType('repay')">
+
+          ↓　还款
+
+        </button>
+
+      </div>
+
+
+      <div class="actions">
+
+        <button
+          class="btn outline"
+          id="otherBtn"
+          onclick="selectType('other')">
+
+          ▣　其他收入
+
+        </button>
+
+
+        <button
+          class="btn secondary"
+          onclick="clearInput()">
+
+          清空输入
+
+        </button>
+
+      </div>
+
+
+      <div class="actions">
+
+        <button
+          class="btn primary"
+          onclick="saveFlow()">
+
+          保存流水
+
+        </button>
+
+
+        <button
+          class="btn secondary"
+          onclick="focusAmount()">
+
+          输入金额
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- 本金 -->
+
+  <div class="card">
+
+    <div class="section">
+
+      <div class="section-title green-title">
+
+        <span>♧　本金操作</span>
+
+      </div>
+
+
+      <div class="capital-grid">
+
+        <div class="capital-item">
+
+          <small>
+            今晚带入本金
+          </small>
+
+          <b id="capitalIn">
+            ¥0.00
+          </b>
+
+        </div>
+
+
+        <div class="capital-item">
+
+          <small>
+            当前本金余额
+          </small>
+
+          <b id="capitalNow">
+            ¥0.00
+          </b>
+
+        </div>
+
+      </div>
+
+
+      <div class="grid2">
+
+        <div class="money-input">
+
+          <input
+            id="capitalAmount"
+            type="number"
+            inputmode="decimal"
+            placeholder="输入本金金额">
+
+          <span>¥</span>
+
+        </div>
+
+
+        <input
+          id="capitalNote"
+          placeholder="备注，例如：昨天回款">
+
+      </div>
+
+
+      <div class="actions">
+
+        <button
+          class="btn outline"
+          onclick="addCapital()">
+
+          ＋ 加入本金
+
+        </button>
+
+
+        <button
+          class="btn secondary"
+          onclick="resetCapital()">
+
+          ⟳　重新设置本金
+
+        </button>
+
+      </div>
+
+
+      <div class="help">
+
+        例如今晚带 ¥30,000；
+        昨天有人回款 ¥3,000，
+        可以用“加入本金”把这 ¥3,000 加回来。
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- 今晚统计 -->
+
+  <div class="card">
+
+    <div
+      class="section-title green-title"
+      style="padding:15px 16px 6px">
+
+      <span>▥　今晚统计</span>
+
+    </div>
+
+
+    <div class="stats">
+
+      <div class="stat red">
+
+        <small>
+          今晚借出
+        </small>
+
+        <b id="sumLend">
+          ¥0.00
+        </b>
+
+      </div>
+
+
+      <div class="stat green">
+
+        <small>
+          今晚回款
+        </small>
+
+        <b id="sumRepay">
+          ¥0.00
+        </b>
+
+      </div>
+
+
+      <div class="stat blue">
+
+        <small>
+          其他收入
+        </small>
+
+        <b id="sumOther">
+          ¥0.00
+        </b>
+
+      </div>
+
+
+      <div class="stat purple">
+
+        <small>
+          流水笔数
+        </small>
+
+        <b id="count">
+          0
+        </b>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- 今晚流水 -->
+
+  <div class="card">
+
+    <div
+      class="section-title green-title"
+      style="padding:15px 16px 6px">
+
+      <span>
+        ▤　今晚流水
+      </span>
+
+
+      <button
+        class="name-btn"
+        style="height:34px"
+        onclick="exportData()">
+
+        ▣　导出备份
+
+      </button>
+
+    </div>
+
+
+    <div class="search">
+
+      <input
+        id="search"
+        placeholder="⌕  搜索客户、备注或金额">
+
+    </div>
+
+
+    <div id="ledger">
+    </div>
+
+
+    <div class="bottom-actions">
+
+      <button onclick="undoDelete()">
+        ↶　撤销删除
+      </button>
+
+      <button onclick="clearToday()">
+        ▣　清空今晚流水
+      </button>
+
+      <button onclick="scrollToTop()">
+        ↑　回到顶部
+      </button>
+
+    </div>
+
+  </div>
 
 </div>
 
-
-<!-- 客户 + 新增流水 -->
-
-<div class="card operation-shell">
-
-
-<!-- 客户 -->
-
-<div class="form customer-form">
-
-<div class="title">
-客户
-</div>
-
-<input
-id="customer"
-placeholder="输入或选择客户姓名"
-autocomplete="off">
 
 <div
-id="names"
-class="names">
-</div>
-
-</div>
-
-
-<!-- 新增流水 -->
-
-<div class="form entry-form">
-
-<div class="title">
-新增流水
-</div>
-
-<div class="row2">
-
-<input
-id="amount"
-type="number"
-inputmode="decimal"
-placeholder="输入金额">
-
-<input
-id="flowTime"
-type="datetime-local">
-
-</div>
-
-<div style="height:10px"></div>
-
-<input
-id="note"
-placeholder="备注（可不填）">
-
-<div class="btns">
-
-<button id="lend">
-借出
-</button>
-
-<button
-class="gray"
-id="repay">
-还款
-</button>
-
-</div>
-
-<div class="btns">
-
-<button
-class="dark"
-id="other">
-其他收入
-</button>
-
-<button
-class="gray"
-id="clear">
-清空输入
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-
-<!-- 本金 -->
-
-<div class="card">
-
-<div class="principal">
-
-<div>
-
-<small>
-今晚带入本金
-</small>
-
-<div
-class="money"
-id="capitalIn">
-¥0
-</div>
-
-</div>
-
-
-<div>
-
-<small>
-当前本金余额
-</small>
-
-<div
-class="money"
-id="capitalNow">
-¥0
-</div>
-
-</div>
-
-</div>
-
-
-<div
-class="form"
-style="border-top:1px solid #e7ebef">
-
-<div class="title">
-本金操作
-</div>
-
-<div class="row2">
-
-<input
-id="capitalAmount"
-type="number"
-inputmode="decimal"
-placeholder="输入本金金额">
-
-<input
-id="capitalNote"
-placeholder="备注，例如：昨天回款">
-
-</div>
-
-<div class="btns">
-
-<button id="addCapital">
-加入本金
-</button>
-
-<button
-class="gray"
-id="resetCapital">
-重新设置本金
-</button>
-
-</div>
-
-<div class="notice">
-
-例如今晚带 ¥30,000；
-昨天有人回款 ¥3,000，
-可以用“加入本金”把这 ¥3,000 加回来。
-
-</div>
-
-</div>
-
-</div>
-
-
-<!-- 今晚统计 -->
-
-<div class="card">
-
-<div class="head">
-
-<b>
-今晚统计
-</b>
-
-<span>
-自动计算
-</span>
-
-</div>
-
-
-<div class="stats">
-
-<div class="stat red">
-
-<small>
-今晚借出
-</small>
-
-<b id="sumLend">
-¥0
-</b>
-
-</div>
-
-
-<div class="stat green">
-
-<small>
-今晚回款
-</small>
-
-<b id="sumRepay">
-¥0
-</b>
-
-</div>
-
-
-<div class="stat">
-
-<small>
-其他收入
-</small>
-
-<b id="sumOther">
-¥0
-</b>
-
-</div>
-
-
-<div class="stat">
-
-<small>
-流水笔数
-</small>
-
-<b id="count">
-0
-</b>
-
-</div>
-
-</div>
-
-</div>
-
-
-<!-- 今晚流水 -->
-
-<div class="card">
-
-<div class="head">
-
-<b>
-今晚流水
-</b>
-
-<span>
-按客户分组 · 每笔独立
-</span>
-
-</div>
-
-
-<div
-class="form"
-style="padding-bottom:6px">
-
-<input
-id="search"
-placeholder="搜索客户、备注或金额">
-
-</div>
-
-
-<div id="ledger">
-</div>
-
-
-<div class="tools">
-
-<button
-class="gray"
-id="undo">
-撤销删除
-</button>
-
-<button
-class="gray"
-id="export">
-导出备份
-</button>
-
-<button
-class="gray"
-id="clearAll">
-清空今晚流水
-</button>
-
-</div>
-
-</div>
-
-
-<div
-class="toast"
-id="toast">
-</div>
-
+  class="toast"
+  id="toast">
 </div>
 
 
 <script>
 
-const KEY="ledger_prototype_v3";
+/* =========================
+   数据
+========================= */
 
+const KEY="tonight_ledger_green_v1";
 
-let data=JSON.parse(
-
-localStorage.getItem(KEY)
-
-||
-
-'{"capital":0,"flows":[],"names":[]}'
-
+let state=
+JSON.parse(
+  localStorage.getItem(KEY)
+  ||
+  '{"capital":0,"flows":[],"names":[]}'
 );
 
+let selectedType="lend";
 
 let deleted=null;
 
+
+/* =========================
+   快捷获取
+========================= */
 
 const $=id=>
 document.getElementById(id);
 
 
-/* 金额 */
+/* =========================
+   工具
+========================= */
+
+function pad(n){
+
+  return String(n).padStart(2,"0");
+
+}
+
 
 function money(n){
 
-return "¥"+
-Number(n||0)
-.toLocaleString(
-"zh-CN",
-{
-maximumFractionDigits:2
-}
-);
+  return "¥"+
+    Number(n||0).toLocaleString(
+      "zh-CN",
+      {
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+      }
+    );
 
 }
 
 
-/* 当前系统时间 */
+/* =========================
+   系统时间
+========================= */
 
-function nowInput(){
+function localDateTimeValue(){
 
-const d=new Date();
+  const d=new Date();
 
-const p=n=>
-String(n).padStart(2,"0");
-
-return d.getFullYear()
-+"-"
-+p(d.getMonth()+1)
-+"-"
-+p(d.getDate())
-+"T"
-+p(d.getHours())
-+":"
-+p(d.getMinutes());
-
-}
-
-
-/* 流水显示时间 */
-
-function displayTime(v){
-
-const d=new Date(v);
-
-if(isNaN(d))
-return v||"";
-
-const p=n=>
-String(n).padStart(2,"0");
-
-return `${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+  return d.getFullYear()
+    +"-"+
+    pad(d.getMonth()+1)
+    +"-"+
+    pad(d.getDate())
+    +"T"+
+    pad(d.getHours())
+    +":"+
+    pad(d.getMinutes());
 
 }
 
 
-/* 保存 */
+function fullTime(value){
 
-function save(){
+  const d=new Date(value);
 
-localStorage.setItem(
-KEY,
-JSON.stringify(data)
-);
+  if(isNaN(d)){
+    return value||"";
+  }
 
-render();
-
-}
-
-
-/* 提示 */
-
-function toast(t){
-
-$("toast").textContent=t;
-
-$("toast").classList.add("show");
-
-setTimeout(
-
-()=>
-$("toast")
-.classList.remove("show"),
-
-1500
-
-);
+  return d.getFullYear()
+    +"-"+
+    pad(d.getMonth()+1)
+    +"-"+
+    pad(d.getDate())
+    +" "+
+    pad(d.getHours())
+    +":"+
+    pad(d.getMinutes())
+    +":"+
+    pad(d.getSeconds());
 
 }
 
 
-/* 顶部系统时间 */
+/* =========================
+   顶部实时系统时间
+========================= */
 
-function systemClock(){
+function updateClock(){
 
-const d=new Date();
+  const d=new Date();
 
-const p=n=>
-String(n).padStart(2,"0");
-
-$("clock").textContent=
-
-`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
-
-}
-
-
-/* 客户名字 */
-
-function renderNames(){
-
-$("names").innerHTML=
-
-data.names
-.slice(0,12)
-.map(
-
-n=>
-
-`<button
-class="name"
-onclick="pickName('${n.replace(/'/g,"&#39;")}')">
-${n}
-</button>`
-
-)
-.join("");
+  $("clock").textContent=
+    pad(d.getHours())
+    +":"+
+    pad(d.getMinutes())
+    +":"+
+    pad(d.getSeconds());
 
 }
-
-
-/* 选择客户 */
-
-function pickName(n){
-
-$("customer").value=n;
-
-toast("已选择："+n);
-
-
-/* 自动跳到金额 */
-
-setTimeout(()=>{
-
-$("amount").focus();
-
-$("amount").scrollIntoView({
-
-behavior:"smooth",
-
-block:"center"
-
-});
-
-},120);
-
-}
-
-
-/* 页面渲染 */
-
-function render(){
-
-renderNames();
-
-
-$("flowTime").value=
-$("flowTime").value
-||
-nowInput();
-
-
-$("capitalIn").textContent=
-money(data.capital);
-
-
-/* 计算当前本金 */
-
-const balance=
-
-data.capital
-
--
-
-data.flows
-
-.filter(
-x=>x.type==="lend"
-)
-
-.reduce(
-(a,x)=>a+x.amount,
-0
-)
-
-+
-
-data.flows
-
-.filter(
-x=>x.type==="repay"
-||
-x.type==="other"
-)
-
-.reduce(
-(a,x)=>a+x.amount,
-0
-);
-
-
-$("capitalNow").textContent=
-money(balance);
-
-
-/* 统计 */
-
-let lend=0;
-
-let repay=0;
-
-let other=0;
-
-
-data.flows.forEach(x=>{
-
-if(x.type==="lend")
-lend+=x.amount;
-
-if(x.type==="repay")
-repay+=x.amount;
-
-if(x.type==="other")
-other+=x.amount;
-
-});
-
-
-$("sumLend").textContent=
-money(lend);
-
-$("sumRepay").textContent=
-money(repay);
-
-$("sumOther").textContent=
-money(other);
-
-$("count").textContent=
-data.flows.length;
-
-
-/* 搜索 */
-
-const q=
-$("search")
-.value
-.trim()
-.toLowerCase();
-
-
-const list=
-data.flows.filter(
-
-x=>
-
-!q
-
-||
-
-`${x.customer} ${x.note} ${x.amount}`
-.toLowerCase()
-.includes(q)
-
-);
-
-
-/* 按客户分组 */
-
-const groups={};
-
-
-list.forEach(x=>
-
-(groups[x.customer]??=[])
-.push(x)
-
-);
-
-
-let out="";
-
-
-Object.entries(groups)
-.forEach(
-
-([name,arr])=>{
-
-let bal=
-
-arr.reduce(
-
-(a,x)=>
-
-a+
-
-(
-x.type==="lend"
-?
-x.amount
-:
--x.amount
-),
-
-0
-
-);
-
-
-out+=`
-
-<div class="group">
-
-<div class="grouphead">
-
-<span>
-${name}
-</span>
-
-<span>
-${
-bal>=0
-?
-"欠 "
-:
-"结余 "
-}
-
-${money(Math.abs(bal))}
-
-</span>
-
-</div>
-
-`;
-
-
-arr.forEach(x=>{
-
-const label=
-
-x.type==="lend"
-?
-"借出"
-:
-x.type==="repay"
-?
-"还款"
-:
-"其他收入";
-
-
-out+=`
-
-<div class="tx">
-
-<div class="txmain">
-
-${label}
-
-${x.note
-?
-" · "+x.note
-:
-""}
-
-<br>
-
-<span class="time">
-
-${displayTime(x.time)}
-
-</span>
-
-</div>
-
-
-<div
-class="amt ${
-x.type==="lend"
-?
-"minus"
-:
-"plus"
-}">
-
-${
-x.type==="lend"
-?
-"-"
-:
-"+"
-}
-
-${money(x.amount).slice(1)}
-
-</div>
-
-
-<button
-
-class="txbtn"
-
-onclick="delFlow('${x.id}')">
-
-删除
-
-</button>
-
-</div>
-
-`;
-
-});
-
-
-out+=`
-
-<div class="sub">
-
-本组当前：
-
-${
-bal>=0
-?
-"欠款 "
-:
-"结余 "
-}
-
-${money(Math.abs(bal))}
-
-</div>
-
-</div>
-
-`;
-
-});
-
-
-$("ledger").innerHTML=
-
-out
-
-||
-
-'<div class="empty">
-今晚还没有流水
-</div>';
-
-}
-
-
-/* 新增流水 */
-
-function addFlow(type){
-
-const customer=
-$("customer")
-.value
-.trim();
-
-
-const amount=
-Number(
-$("amount").value
-);
-
-
-if(!customer){
-
-toast("先输入客户姓名");
-
-$("customer").focus();
-
-return;
-
-}
-
-
-if(!amount||amount<=0){
-
-toast("请输入正确金额");
-
-$("amount").focus();
-
-return;
-
-}
-
-
-const flow={
-
-id:
-Date.now()+"",
-
-customer,
-
-amount,
-
-type,
-
-time:
-$("flowTime").value
-||
-nowInput(),
-
-note:
-$("note")
-.value
-.trim()
-
-};
-
-
-data.flows.push(flow);
-
-
-/* 保存客户名字 */
-
-if(
-!data.names.includes(customer)
-){
-
-data.names.unshift(customer);
-
-}
-
-
-data.names=
-data.names.slice(0,30);
-
-
-/* 清金额 */
-
-$("amount").value="";
-
-$("note").value="";
-
-$("flowTime").value=
-nowInput();
-
-
-save();
-
-
-toast(
-"已保存，流水已更新"
-);
-
-
-/* 自动跳到最新流水 */
-
-setTimeout(()=>{
-
-const latest=
-document.querySelector(".tx");
-
-if(latest){
-
-latest.scrollIntoView({
-
-behavior:"smooth",
-
-block:"center"
-
-});
-
-}
-
-},120);
-
-}
-
-
-/* 删除流水 */
-
-function delFlow(id){
-
-const i=
-data.flows.findIndex(
-x=>x.id===id
-);
-
-
-if(i<0)
-return;
-
-
-deleted=
-data.flows.splice(i,1)[0];
-
-
-save();
-
-
-toast(
-"已删除，可点“撤销删除”恢复"
-);
-
-}
-
-
-/* 借出 */
-
-$("lend").onclick=
-()=>addFlow("lend");
-
-
-/* 还款 */
-
-$("repay").onclick=
-()=>addFlow("repay");
-
-
-/* 其他收入 */
-
-$("other").onclick=
-()=>addFlow("other");
-
-
-/* 清空输入 */
-
-$("clear").onclick=()=>{
-
-$("amount").value="";
-
-$("note").value="";
-
-$("flowTime").value=
-nowInput();
-
-};
-
-
-/* 加入本金 */
-
-$("addCapital").onclick=()=>{
-
-const n=
-Number(
-$("capitalAmount").value
-);
-
-
-if(!n||n<=0){
-
-toast(
-"请输入本金金额"
-);
-
-return;
-
-}
-
-
-data.capital+=n;
-
-
-$("capitalAmount").value="";
-
-$("capitalNote").value="";
-
-
-save();
-
-
-toast(
-"本金已加入"
-);
-
-};
-
-
-/* 重新设置本金 */
-
-$("resetCapital").onclick=()=>{
-
-const n=
-
-Number(
-
-prompt(
-"请输入今晚带入本金：",
-data.capital||0
-)
-
-);
-
-
-if(
-!isNaN(n)
-&&
-n>=0
-){
-
-data.capital=n;
-
-save();
-
-toast(
-"本金已重新设置"
-);
-
-}
-
-};
-
-
-/* 撤销删除 */
-
-$("undo").onclick=()=>{
-
-if(!deleted){
-
-toast(
-"没有可撤销的删除"
-);
-
-return;
-
-}
-
-
-data.flows.push(
-deleted
-);
-
-deleted=null;
-
-
-save();
-
-
-toast(
-"已恢复"
-);
-
-};
-
-
-/* 清空今晚流水 */
-
-$("clearAll").onclick=()=>{
-
-if(
-
-confirm(
-"确定清空今晚全部流水？本金不会删除。"
-)
-
-){
-
-data.flows=[];
-
-save();
-
-toast(
-"今晚流水已清空"
-);
-
-}
-
-};
-
-
-/* 搜索 */
-
-$("search").oninput=
-render;
-
-
-/* 导出备份 */
-
-$("export").onclick=()=>{
-
-const blob=
-
-new Blob(
-
-[
-JSON.stringify(
-data,
-null,
-2
-)
-],
-
-{
-type:"application/json"
-}
-
-);
-
-
-const a=
-document.createElement("a");
-
-
-a.href=
-URL.createObjectURL(
-blob
-);
-
-
-a.download=
-
-"今晚流水备份-"
-+
-new Date()
-.toISOString()
-.slice(0,10)
-+
-".json";
-
-
-a.click();
-
-
-URL.revokeObjectURL(
-a.href
-);
-
-
-toast(
-"备份文件已生成"
-);
-
-};
-
-
-/* 客户输入框按回车 */
-
-$("customer")
-.addEventListener(
-"keydown",
-function(e){
-
-if(e.key==="Enter"){
-
-e.preventDefault();
-
-$("amount").focus();
-
-$("amount")
-.scrollIntoView({
-
-behavior:"smooth",
-
-block:"center"
-
-});
-
-}
-
-}
-);
-
-
-/* 初始化 */
-
-$("flowTime").value=
-nowInput();
 
 
 setInterval(
-systemClock,
-1000
+  updateClock,
+  1000
 );
 
+updateClock();
 
-systemClock();
+
+/* =========================
+   提示
+========================= */
+
+function showToast(text){
+
+  const box=$("toast");
+
+  box.textContent=text;
+
+  box.classList.add("show");
+
+  clearTimeout(
+    showToast.timer
+  );
+
+  showToast.timer=
+    setTimeout(
+      ()=>{
+        box.classList.remove("show");
+      },
+      1500
+    );
+
+}
+
+
+/* =========================
+   保存数据
+========================= */
+
+function saveData(){
+
+  localStorage.setItem(
+    KEY,
+    JSON.stringify(state)
+  );
+
+  render();
+
+}
+
+
+/* =========================
+   客户
+========================= */
+
+function addCustomer(){
+
+  const name=
+    prompt("请输入客户姓名");
+
+  if(name===null){
+    return;
+  }
+
+  const n=name.trim();
+
+  if(!n){
+    return;
+  }
+
+  if(
+    !state.names.includes(n)
+  ){
+
+    state.names.unshift(n);
+
+  }
+
+  state.names=
+    state.names.slice(0,50);
+
+  saveData();
+
+  $("customerInput").value=n;
+
+  focusAmount();
+
+  showToast(
+    "已添加客户："+n
+  );
+
+}
+
+
+function chooseName(name){
+
+  $("customerInput").value=name;
+
+  document
+    .querySelectorAll(".name-btn")
+    .forEach(
+      btn=>{
+        btn.classList.remove("active");
+      }
+    );
+
+  const btn=
+    [...document.querySelectorAll(".name-btn")]
+    .find(
+      x=>x.dataset.name===name
+    );
+
+  if(btn){
+    btn.classList.add("active");
+  }
+
+  focusAmount();
+
+}
+
+
+/* =========================
+   输入金额
+========================= */
+
+function focusAmount(){
+
+  $("amount").focus();
+
+  $("amount").scrollIntoView({
+    behavior:"smooth",
+    block:"center"
+  });
+
+}
+
+
+/* =========================
+   流水类型
+========================= */
+
+function selectType(type){
+
+  selectedType=type;
+
+  $("lendBtn")
+    .classList.remove("selected");
+
+  $("repayBtn")
+    .classList.remove("selected");
+
+  $("otherBtn")
+    .classList.remove("selected");
+
+
+  if(type==="lend"){
+
+    $("lendBtn")
+      .classList.add("selected");
+
+  }
+
+
+  if(type==="repay"){
+
+    $("repayBtn")
+      .classList.add("selected");
+
+  }
+
+
+  if(type==="other"){
+
+    $("otherBtn")
+      .classList.add("selected");
+
+  }
+
+}
+
+
+/* =========================
+   清空输入
+========================= */
+
+function clearInput(){
+
+  $("amount").value="";
+
+  $("note").value="";
+
+  $("flowTime").value=
+    localDateTimeValue();
+
+}
+
+
+/* =========================
+   保存流水
+========================= */
+
+function saveFlow(){
+
+  const customer=
+    $("customerInput")
+    .value
+    .trim();
+
+
+  const amount=
+    Number(
+      $("amount").value
+    );
+
+
+  if(!customer){
+
+    showToast(
+      "请先选择客户"
+    );
+
+    $("customerInput")
+      .focus();
+
+    return;
+
+  }
+
+
+  if(
+    !amount ||
+    amount<=0
+  ){
+
+    showToast(
+      "请输入正确金额"
+    );
+
+    $("amount").focus();
+
+    return;
+
+  }
+
+
+  const item={
+
+    id:
+      Date.now().toString()
+      +
+      Math.random()
+        .toString(36)
+        .slice(2,6),
+
+    customer:customer,
+
+    amount:amount,
+
+    type:selectedType,
+
+    note:
+      $("note")
+      .value
+      .trim(),
+
+    time:
+      $("flowTime")
+      .value
+      ||
+      localDateTimeValue()
+
+  };
+
+
+  state.flows.push(item);
+
+
+  if(
+    !state.names.includes(customer)
+  ){
+
+    state.names.unshift(
+      customer
+    );
+
+  }
+
+
+  state.names=
+    state.names.slice(0,50);
+
+
+  clearInput();
+
+  saveData();
+
+
+  showToast(
+    "保存成功，流水已更新"
+  );
+
+
+  setTimeout(
+    ()=>{
+
+      const groups=
+        document.querySelectorAll(
+          ".customer-group"
+        );
+
+      if(groups.length){
+
+        groups[
+          groups.length-1
+        ].scrollIntoView({
+          behavior:"smooth",
+          block:"center"
+        });
+
+      }
+
+    },
+    100
+  );
+
+}
+
+
+/* =========================
+   本金
+========================= */
+
+function addCapital(){
+
+  const amount=
+    Number(
+      $("capitalAmount")
+      .value
+    );
+
+
+  if(
+    !amount ||
+    amount<=0
+  ){
+
+    showToast(
+      "请输入本金金额"
+    );
+
+    return;
+
+  }
+
+
+  state.capital+=amount;
+
+
+  $("capitalAmount")
+    .value="";
+
+  $("capitalNote")
+    .value="";
+
+
+  saveData();
+
+
+  showToast(
+    "本金已加入"
+  );
+
+}
+
+
+function resetCapital(){
+
+  const value=
+    prompt(
+      "请输入今晚带入本金金额",
+      String(
+        state.capital||0
+      )
+    );
+
+
+  if(value===null){
+    return;
+  }
+
+
+  const amount=
+    Number(value);
+
+
+  if(
+    !Number.isFinite(amount)
+    ||
+    amount<0
+  ){
+
+    showToast(
+      "金额不正确"
+    );
+
+    return;
+
+  }
+
+
+  state.capital=
+    amount;
+
+
+  saveData();
+
+
+  showToast(
+    "本金已重新设置"
+  );
+
+}
+
+
+/* =========================
+   删除流水
+========================= */
+
+function deleteFlow(id){
+
+  const index=
+    state.flows.findIndex(
+      x=>x.id===id
+    );
+
+
+  if(index<0){
+    return;
+  }
+
+
+  deleted=
+    state.flows.splice(
+      index,
+      1
+    )[0];
+
+
+  saveData();
+
+
+  showToast(
+    "已删除，可以撤销"
+  );
+
+}
+
+
+/* =========================
+   撤销删除
+========================= */
+
+function undoDelete(){
+
+  if(!deleted){
+
+    showToast(
+      "没有可以撤销的记录"
+    );
+
+    return;
+
+  }
+
+
+  state.flows.push(
+    deleted
+  );
+
+
+  deleted=null;
+
+
+  saveData();
+
+
+  showToast(
+    "已恢复流水"
+  );
+
+}
+
+
+/* =========================
+   清空今晚流水
+========================= */
+
+function clearToday(){
+
+  if(!state.flows.length){
+
+    showToast(
+      "今晚没有流水"
+    );
+
+    return;
+
+  }
+
+
+  if(
+    confirm(
+      "确定清空今晚全部流水吗？"
+    )
+  ){
+
+    state.flows=[];
+
+    saveData();
+
+    showToast(
+      "今晚流水已清空"
+    );
+
+  }
+
+}
+
+
+/* =========================
+   导出备份
+========================= */
+
+function exportData(){
+
+  const blob=
+    new Blob(
+      [
+        JSON.stringify(
+          state,
+          null,
+          2
+        )
+      ],
+      {
+        type:
+          "application/json"
+      }
+    );
+
+
+  const a=
+    document.createElement("a");
+
+
+  a.href=
+    URL.createObjectURL(
+      blob
+    );
+
+
+  a.download=
+    "今晚流水备份.json";
+
+
+  a.click();
+
+
+  URL.revokeObjectURL(
+    a.href
+  );
+
+
+  showToast(
+    "备份文件已生成"
+  );
+
+}
+
+
+/* =========================
+   转义
+========================= */
+
+function escapeHtml(text){
+
+  return String(text)
+    .replace(
+      /[&<>"']/g,
+      c=>({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+      }[c])
+    );
+
+}
+
+
+function escapeJs(text){
+
+  return String(text)
+    .replace(
+      /\\/g,
+      "\\\\"
+    )
+    .replace(
+      /'/g,
+      "\\'"
+    )
+    .replace(
+      /\n/g,
+      "\\n"
+    )
+    .replace(
+      /\r/g,
+      "\\r"
+    );
+
+}
+
+
+/* =========================
+   页面渲染
+========================= */
+
+function render(){
+
+  /*
+    客户名字
+  */
+
+  $("nameList").innerHTML=
+    state.names
+      .slice(0,20)
+      .map(
+        name=>
+          `
+          <button
+            class="name-btn"
+            data-name="${escapeHtml(name)}"
+            onclick="chooseName('${escapeJs(name)}')">
+
+            ${escapeHtml(name)}
+
+          </button>
+          `
+      )
+      .join("");
+
+
+  /*
+    统计
+  */
+
+  let lend=0;
+
+  let repay=0;
+
+  let other=0;
+
+
+  state.flows.forEach(
+    flow=>{
+
+      if(
+        flow.type==="lend"
+      ){
+
+        lend+=flow.amount;
+
+      }
+
+      else if(
+        flow.type==="repay"
+      ){
+
+        repay+=flow.amount;
+
+      }
+
+      else{
+
+        other+=flow.amount;
+
+      }
+
+    }
+  );
+
+
+  $("sumLend")
+    .textContent=
+    money(lend);
+
+
+  $("sumRepay")
+    .textContent=
+    money(repay);
+
+
+  $("sumOther")
+    .textContent=
+    money(other);
+
+
+  $("count")
+    .textContent=
+    state.flows.length;
+
+
+  /*
+    本金
+  */
+
+  $("capitalIn")
+    .textContent=
+    money(state.capital);
+
+
+  const current=
+    state.capital
+    -
+    lend
+    +
+    repay
+    +
+    other;
+
+
+  $("capitalNow")
+    .textContent=
+    money(current);
+
+
+  /*
+    搜索
+  */
+
+  const q=
+    $("search")
+    .value
+    .trim()
+    .toLowerCase();
+
+
+  const flows=
+    state.flows.filter(
+      flow=>
+
+        !q ||
+
+        (
+          flow.customer
+          +" "
+          +
+          flow.note
+          +" "
+          +
+          flow.amount
+        )
+        .toLowerCase()
+        .includes(q)
+
+    );
+
+
+  /*
+    按客户分组
+  */
+
+  const groups={};
+
+
+  flows.forEach(
+    flow=>{
+
+      if(
+        !groups[flow.customer]
+      ){
+
+        groups[flow.customer]=[];
+
+      }
+
+      groups[
+        flow.customer
+      ].push(flow);
+
+    }
+  );
+
+
+  let html="";
+
+
+  Object.entries(groups)
+    .forEach(
+      ([customer,list])=>{
+
+        let balance=0;
+
+
+        list.forEach(
+          flow=>{
+
+            if(
+              flow.type==="lend"
+            ){
+
+              balance+=
+                flow.amount;
+
+            }
+
+            else{
+
+              balance-=
+                flow.amount;
+
+            }
+
+          }
+        );
+
+
+        html+=`
+
+        <div class="customer-group">
+
+          <div class="group-head">
+
+            <span class="customer-name">
+
+              ${escapeHtml(customer)}
+
+            </span>
+
+
+            <span class="debt">
+
+              ${
+                balance>=0
+                ?"欠款"
+                :"结余"
+              }
+
+              ${money(
+                Math.abs(balance)
+              )}
+
+            </span>
+
+          </div>
+
+        `;
+
+
+        list
+          .slice()
+          .sort(
+            (a,b)=>
+              new Date(b.time)
+              -
+              new Date(a.time)
+          )
+          .forEach(
+            flow=>{
+
+              const label=
+                flow.type==="lend"
+                ?"借出"
+                :
+                flow.type==="repay"
+                ?"还款"
+                :
+                "其他收入";
+
+
+              const sign=
+                flow.type==="lend"
+                ?"-"
+                :"+";
+
+
+              html+=`
+
+              <div class="flow">
+
+                <span
+                  class="badge ${flow.type}">
+
+                  ${label}
+
+                </span>
+
+
+                <div class="flow-main">
+
+                  <div class="flow-note">
+
+                    ${
+                      escapeHtml(
+                        flow.note
+                        ||
+                        "无备注"
+                      )
+                    }
+
+                  </div>
+
+
+                  <div class="flow-time">
+
+                    ${fullTime(
+                      flow.time
+                    )}
+
+                  </div>
+
+                </div>
+
+
+                <div
+                  class="
+                    flow-amount
+                    ${
+                      flow.type==="lend"
+                      ?"minus"
+                      :"plus"
+                    }
+                  ">
+
+                  ${sign}${money(
+                    flow.amount
+                  ).slice(1)}
+
+                </div>
+
+
+                <button
+                  class="del"
+                  onclick="deleteFlow('${flow.id}')">
+
+                  ⌫
+
+                </button>
+
+              </div>
+
+              `;
+
+            }
+          );
+
+
+        html+=`
+
+          <div class="group-total">
+
+            本客户
+            ${
+              balance>=0
+              ?"欠款"
+              :"结余"
+            }
+
+            ${money(
+              Math.abs(balance)
+            )}
+
+          </div>
+
+        </div>
+
+        `;
+
+      }
+    );
+
+
+  if(!html){
+
+    html=`
+
+      <div class="empty">
+
+        今晚还没有流水
+
+        <br>
+
+        选择客户、输入金额后保存即可
+
+      </div>
+
+    `;
+
+  }
+
+
+  $("ledger")
+    .innerHTML=html;
+
+}
+
+
+/* =========================
+   搜索
+========================= */
+
+$("search")
+  .addEventListener(
+    "input",
+    render
+  );
+
+
+/* =========================
+   回车
+========================= */
+
+$("customerInput")
+  .addEventListener(
+    "keydown",
+    e=>{
+
+      if(e.key==="Enter"){
+
+        e.preventDefault();
+
+        focusAmount();
+
+      }
+
+    }
+  );
+
+
+$("amount")
+  .addEventListener(
+    "keydown",
+    e=>{
+
+      if(e.key==="Enter"){
+
+        e.preventDefault();
+
+        saveFlow();
+
+      }
+
+    }
+  );
+
+
+/* =========================
+   初始化
+========================= */
+
+$("flowTime")
+  .value=
+  localDateTimeValue();
 
 
 render();
