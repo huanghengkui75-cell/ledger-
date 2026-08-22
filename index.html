@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f5f7fa">
-<title>今晚流水记账</title>
+<title>天马记账系统</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
@@ -126,7 +125,7 @@ opacity:0;pointer-events:none;transition:.2s;z-index:99;white-space:nowrap}
 <div class="app">
 
 <div class="top">
-<h1>今晚流水记账</h1>
+<h1>天马记账系统</h1>
 <div class="clock">实时系统时间　<b id="clock">--:--:--</b></div>
 </div>
 
@@ -138,7 +137,7 @@ opacity:0;pointer-events:none;transition:.2s;z-index:99;white-space:nowrap}
 <button class="small-btn" onclick="addCustomer()">＋ 新增客户</button>
 </div>
 <input id="customerInput" autocomplete="off" placeholder="输入或选择客户姓名">
-<div id="nameList" class="name-list"></div>
+<div id="nameList" class="name-list"></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:10px 12px;background:#fafbfc;border-radius:12px;border:1px solid #e8ebef"><span style="font-size:12px;color:#7d8794">禁止显示确认对话框<br>开启后删除时不再弹确认</span><button id="dialogToggle" class="small-btn" style="height:34px">已关闭</button></div>
 </div>
 </div>
 
@@ -161,7 +160,7 @@ opacity:0;pointer-events:none;transition:.2s;z-index:99;white-space:nowrap}
 </div>
 
 <div class="type-row">
-<button class="type-btn other" id="otherBtn" onclick="selectType('other')">▣　其他收入</button>
+<button class="type-btn other" id="otherBtn" onclick="selectType('other')">▣　毛草</button>
 <button class="btn primary" onclick="saveFlow()">保存流水</button>
 </div>
 
@@ -205,7 +204,7 @@ opacity:0;pointer-events:none;transition:.2s;z-index:99;white-space:nowrap}
 <div class="stats">
 <div class="stat red"><small>今晚借出</small><b id="sumLend">¥0.00</b></div>
 <div class="stat green"><small>今晚回款</small><b id="sumRepay">¥0.00</b></div>
-<div class="stat blue"><small>其他收入</small><b id="sumOther">¥0.00</b></div>
+<div class="stat blue"><small>毛草</small><b id="sumOther">¥0.00</b></div>
 <div class="stat purple"><small>流水笔数</small><b id="count">0</b></div>
 </div>
 </div>
@@ -245,8 +244,12 @@ const KEY="tonight_ledger_final_v3";
 let state=JSON.parse(localStorage.getItem(KEY)||'{"capital":0,"flows":[],"names":[]}');
 let selectedType="lend";
 let deleted=null;
+let dialogOff=localStorage.getItem("tianma_dialog_off")==="1";
+let dialogOff=localStorage.getItem("tianma_dialog_off")==="1";
 
 const $=id=>document.getElementById(id);
+function askConfirm(msg){return dialogOff?true:window.confirm(msg)}
+function askConfirm(msg){return dialogOff?true:window.confirm(msg)}
 
 function pad(n){return String(n).padStart(2,"0")}
 
@@ -268,6 +271,13 @@ function showToast(t){
  showToast.timer=setTimeout(()=>x.classList.remove("show"),1600);
 }
 
+function setDialogToggle(){
+ const b=$("dialogToggle"); if(!b)return;
+ b.textContent=dialogOff?"已开启禁用":"已关闭禁用";
+ b.style.background=dialogOff?"#159447":"#f3fbf6";
+ b.style.color=dialogOff?"#fff":"#087b39";
+}
+
 function updateClock(){
  const d=new Date();
  $("clock").textContent=pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
@@ -279,6 +289,11 @@ function selectType(type){
  $("lendBtn").classList.toggle("selected",type==="lend");
  $("repayBtn").classList.toggle("selected",type==="repay");
  $("otherBtn").classList.toggle("selected",type==="other");
+}
+
+function deleteCustomer(name){
+ if(!askConfirm("确定删除客户名字“"+name+"”吗？\n\n只删除客户名字，不删除已有流水。"))return;
+ state.names=state.names.filter(n=>n!==name); saveData(); showToast("客户名字已删除");
 }
 
 function addCustomer(){
@@ -367,8 +382,8 @@ function resetCapital(){
 function deleteFlow(id){
  const f=state.flows.find(x=>x.id===id);
  if(!f)return;
- const type=f.type==="lend"?"借出":f.type==="repay"?"还款":"其他收入";
- const ok=confirm(
+ const type=f.type==="lend"?"借出":f.type==="repay"?"还款":"毛草";
+ const ok=askConfirm(
  "确定删除这笔流水吗？\n\n客户："+f.customer+
  "\n类型："+type+
  "\n金额："+money(f.amount)+
@@ -393,7 +408,7 @@ function undoDelete(){
 
 function clearToday(){
  if(!state.flows.length){showToast("今晚没有流水");return}
- if(confirm("确定清空今晚全部流水吗？")){
+ if(askConfirm("确定清空今晚全部流水吗？")){
   state.flows=[];
   saveData();
   showToast("今晚流水已清空");
@@ -414,10 +429,10 @@ function escapeJs(t){
 function renderReport(){
  const map={};
  state.flows.forEach(f=>{
-  if(!map[f.customer])map[f.customer]={lend:0,repay:0,other:0};
+  if(!map[f.customer])map[f.customer]={lend:0,repay:0,maoCao:0};
   if(f.type==="lend")map[f.customer].lend+=f.amount;
   else if(f.type==="repay")map[f.customer].repay+=f.amount;
-  else map[f.customer].other+=f.amount;
+  else map[f.customer].maoCao+=f.amount;
  });
 
  const names=Object.keys(map);
@@ -439,7 +454,7 @@ function renderReport(){
    <div class="report-grid">
     <div class="report-cell debt"><small>借出总额</small><b>${money(x.lend)}</b></div>
     <div class="report-cell repay"><small>回款总额</small><b>${money(x.repay)}</b></div>
-    <div class="report-cell net"><small>当前应收</small><b>${money(debt)}</b></div>
+    <div class="report-cell net"><small>毛草</small><b>${money(x.maoCao)}</b></div>
    </div>
   </div>`;
  });
@@ -448,23 +463,25 @@ function renderReport(){
 
 function render(){
  $("nameList").innerHTML=state.names.slice(0,20).map(n=>
- `<button class="name-btn" data-name="${escapeHtml(n)}"
- onclick="chooseName('${escapeJs(n)}')">${escapeHtml(n)}</button>`
+ `<div style="display:flex;align-items:center;gap:6px">
+ <button class="name-btn" data-name="${escapeHtml(n)}" onclick="chooseName('${escapeJs(n)}')">${escapeHtml(n)}</button>
+ <button class="del" style="width:32px;height:32px;font-size:12px" onclick="deleteCustomer('${escapeJs(n)}')">删</button>
+ </div>`
  ).join("");
 
- let lend=0,repay=0,other=0;
+ let lend=0,repay=0,maoCao=0;
  state.flows.forEach(f=>{
   if(f.type==="lend")lend+=f.amount;
   else if(f.type==="repay")repay+=f.amount;
-  else other+=f.amount;
+  else maoCao+=f.amount;
  });
 
  $("sumLend").textContent=money(lend);
  $("sumRepay").textContent=money(repay);
- $("sumOther").textContent=money(other);
+ $("sumOther").textContent=money(maoCao);
  $("count").textContent=state.flows.length;
  $("capitalIn").textContent=money(state.capital);
- $("capitalNow").textContent=money(state.capital-lend+repay+other);
+ $("capitalNow").textContent=money(state.capital-lend+repay);
 
  renderReport();
 
@@ -495,10 +512,10 @@ function render(){
    </div>`;
 
   list.slice().sort((a,b)=>b.id.localeCompare(a.id)).forEach(f=>{
-   const label=f.type==="lend"?"借出":f.type==="repay"?"还款":"其他收入";
+   const label=f.type==="lend"?"借出":f.type==="repay"?"还款":"毛草";
    const sign=f.type==="lend"?"-":"+";
    html+=`
-   <div class="flow">
+   <div class="flow" id="flow-${f.id}">
     <span class="badge ${f.type}">${label}</span>
     <div class="flow-main">
      <div class="flow-note">${escapeHtml(f.note||"无备注")}</div>
