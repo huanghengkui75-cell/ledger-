@@ -136,7 +136,7 @@ opacity:0;pointer-events:none;transition:.2s;z-index:99;white-space:nowrap}
 <span>♙　客户</span>
 <button class="small-btn" onclick="addCustomer()">＋ 新增客户</button>
 </div>
-<input id="customerInput" autocomplete="off" placeholder="输入或选择客户姓名"><div style="font-size:12px;color:#8c96a4;margin-top:7px">可直接输入新客户名字；点下面绿色名字可快速选择</div>
+<input id="customerInput" autocomplete="off" placeholder="输入或选择客户姓名">
 <div id="nameList" class="name-list"></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:10px 12px;background:#fafbfc;border-radius:12px;border:1px solid #e8ebef"><span style="font-size:12px;color:#7d8794">禁止显示确认对话框<br>开启后删除时不再弹确认</span><button id="dialogToggle" class="small-btn" style="height:34px">已关闭</button></div>
 </div>
 </div>
@@ -260,14 +260,9 @@ function money(n){
 
 /* 永远直接读取手机当前系统时间 */
 function nowTime(){
- const d = new Date();
- const y = d.getFullYear();
- const m = String(d.getMonth()+1).padStart(2,"0");
- const day = String(d.getDate()).padStart(2,"0");
- const h = String(d.getHours()).padStart(2,"0");
- const min = String(d.getMinutes()).padStart(2,"0");
- const sec = String(d.getSeconds()).padStart(2,"0");
- return `${y}-${m}-${day} ${h}:${min}:${sec}`;
+ const d=new Date();
+ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+
+ " "+pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
 }
 
 function showToast(t){
@@ -302,23 +297,13 @@ function deleteCustomer(name){
 }
 
 function addCustomer(){
- const input=$("customerInput");
- const name=input.value.trim();
-
- if(!name){
-   input.focus();
-   showToast("请先输入客户姓名");
-   return;
- }
-
- if(!state.names.includes(name)){
-   state.names.unshift(name);
-   state.names=state.names.slice(0,50);
-   saveData();
- }else{
-   render();
- }
-
+ const v=prompt("请输入客户姓名");
+ if(v===null)return;
+ const name=v.trim();
+ if(!name)return;
+ if(!state.names.includes(name))state.names.unshift(name);
+ state.names=state.names.slice(0,50);
+ saveData();
  chooseName(name);
  showToast("已选择："+name);
 }
@@ -328,10 +313,8 @@ function chooseName(name){
  document.querySelectorAll(".name-btn").forEach(x=>x.classList.remove("active"));
  const btn=[...document.querySelectorAll(".name-btn")].find(x=>x.dataset.name===name);
  if(btn)btn.classList.add("active");
- setTimeout(()=>{
-   $("amount").focus();
-   $("amount").scrollIntoView({behavior:"smooth",block:"center"});
- },80);
+ $("amount").focus();
+ $("amount").scrollIntoView({behavior:"smooth",block:"center"});
 }
 
 function saveFlow(){
@@ -339,51 +322,42 @@ function saveFlow(){
  const amount=Number($("amount").value);
 
  if(!customer){
-   showToast("请输入客户姓名");
-   $("customerInput").focus();
-   return;
+  showToast("请先选择客户");
+  $("customerInput").focus();
+  return;
+ }
+ if(!amount||amount<=0){
+  showToast("请输入正确金额");
+  $("amount").focus();
+  return;
  }
 
- if(!amount || amount<=0){
-   showToast("请输入正确金额");
-   $("amount").focus();
-   return;
- }
-
- /* 关键：点击保存这一刻，直接读取设备系统当前时间 */
  const item={
-   id:"flow_"+Date.now()+"_"+Math.random().toString(36).slice(2,8),
-   customer:customer,
-   amount:amount,
-   type:selectedType,
-   note:$("note").value.trim(),
-   time:nowTime()
+  id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),
+  customer,
+  amount,
+  type:selectedType,
+  note:$("note").value.trim(),
+  time:nowTime()
  };
 
  state.flows.push(item);
-
- if(!state.names.includes(customer)){
-   state.names.unshift(customer);
- }
+ if(!state.names.includes(customer))state.names.unshift(customer);
  state.names=state.names.slice(0,50);
 
+ /* 保存后清掉金额和备注，但不提供单独“清空”按钮 */
  $("amount").value="";
  $("note").value="";
 
  saveData();
+ showToast("保存成功，流水已更新");
 
- /* 保存后定位到“刚刚保存的这一笔”，不是随便跳到流水区 */
  setTimeout(()=>{
-   const el=document.getElementById("flow-"+item.id);
-   if(el){
-     el.scrollIntoView({behavior:"smooth",block:"center"});
-     el.classList.add("new-flow");
-     setTimeout(()=>el.classList.remove("new-flow"),1800);
-   }
+  const el=document.getElementById("ledger");
+  if(el)el.scrollIntoView({behavior:"smooth",block:"center"});
  },120);
-
- showToast("已保存："+customer+" "+money(amount));
 }
+
 function addCapital(){
  const amount=Number($("capitalAmount").value);
  if(!amount||amount<=0){showToast("请输入本金金额");return}
@@ -537,11 +511,7 @@ function render(){
     <span class="debt">${balance>=0?"欠款":"结余"} ${money(Math.abs(balance))}</span>
    </div>`;
 
-  list.slice().sort((a,b)=>{
-  const ta=Date.parse(a.time.replace(" ","T"))||0;
-  const tb=Date.parse(b.time.replace(" ","T"))||0;
-  return tb-ta || String(b.id).localeCompare(String(a.id));
-}).forEach(f=>{
+  list.slice().sort((a,b)=>b.id.localeCompare(a.id)).forEach(f=>{
    const label=f.type==="lend"?"借出":f.type==="repay"?"还款":"毛草";
    const sign=f.type==="lend"?"-":"+";
    html+=`
@@ -575,26 +545,7 @@ function scrollToTop(){
 $("search").addEventListener("input",render);
 
 $("customerInput").addEventListener("keydown",e=>{
- if(e.key==="Enter"){
-   e.preventDefault();
-   const name=$("customerInput").value.trim();
-   if(!name){
-     showToast("请输入客户姓名");
-     return;
-   }
-   if(!state.names.includes(name)){
-     state.names.unshift(name);
-     state.names=state.names.slice(0,50);
-     saveData();
-   }
-   document.querySelectorAll(".name-btn").forEach(x=>x.classList.remove("active"));
-   const btn=[...document.querySelectorAll(".name-btn")].find(x=>x.dataset.name===name);
-   if(btn)btn.classList.add("active");
-   setTimeout(()=>{
-     $("amount").focus();
-     $("amount").scrollIntoView({behavior:"smooth",block:"center"});
-   },80);
- }
+ if(e.key==="Enter"){e.preventDefault();$("amount").focus();}
 });
 $("amount").addEventListener("keydown",e=>{
  if(e.key==="Enter"){e.preventDefault();saveFlow();}
