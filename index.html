@@ -1,419 +1,421 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fa">
 <title>今晚流水记账</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#f4f6f8;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Microsoft YaHei",Arial,sans-serif}
-.app{max-width:1100px;margin:auto;padding:12px}
-.header{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:12px;box-shadow:0 2px 10px #00000010}
-.title{font-size:22px;font-weight:700}
-.clock{margin-top:5px;color:#1677ff;font-size:15px;font-weight:600}
-.toolbar,.stats,.formrow,.actions{display:flex;gap:8px;flex-wrap:wrap}
-.toolbar{margin-top:12px}
-button{border:0;border-radius:9px;padding:9px 13px;background:#e9edf2;cursor:pointer;font-size:14px}
-button.primary{background:#1677ff;color:#fff}
-button.danger{background:#ff4d4f;color:#fff}
-button.green{background:#20a464;color:#fff}
-button:disabled{opacity:.45;cursor:not-allowed}
-.card{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 10px #0000000d}
-input,select{border:1px solid #d9dee5;border-radius:9px;padding:10px;font-size:15px;background:#fff}
-input{min-width:0}
-.customer-input{flex:1}
-.amount{width:150px}
-.note{flex:1}
-.type button.active{background:#1677ff;color:white}
-.names{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
-.namebtn{background:#eef5ff;color:#1769d1}
-.namebtn.selected{background:#1677ff;color:#fff}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.stat{background:#f7f8fa;border-radius:10px;padding:11px}
-.stat b{display:block;font-size:19px;margin-top:3px}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{padding:9px 6px;border-bottom:1px solid #eee;text-align:left}
-th{background:#fafafa}
-.lend{color:#e5484d}.repay{color:#15945c}.income{color:#7b4fd6}
-.empty{text-align:center;color:#999;padding:25px}
-.history-item{display:flex;justify-content:space-between;align-items:center;padding:11px 3px;border-bottom:1px solid #eee}
-.badge{font-size:12px;color:#666}
-@media(max-width:650px){
- .stats{grid-template-columns:repeat(2,1fr)}
- .amount{width:110px}
- table{font-size:13px}
- th:nth-child(5),td:nth-child(5){display:none}
-}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#f5f7fa;--card:#fff;--ink:#17202d;--muted:#8c96a4;--line:#e5e9ee;--green:#159447;--green2:#087b39;--red:#df3d39;--blue:#1267d6;--purple:#7056d8}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Helvetica Neue","Microsoft YaHei",sans-serif}
+body{min-height:100vh}.app{width:min(100%,780px);margin:auto;padding:14px 12px 45px}
+.top{text-align:center;padding:4px 0 14px}.top h1{margin:0;font-size:27px;font-weight:900;letter-spacing:-1px}.clock{margin-top:5px;color:var(--muted);font-size:14px}.clock b{color:var(--green);font-variant-numeric:tabular-nums}
+.card{background:var(--card);border:1px solid #e6e9ee;border-radius:21px;margin-bottom:13px;overflow:hidden;box-shadow:0 6px 20px rgba(30,45,65,.065)}
+.section{padding:16px}.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:19px;font-weight:900;margin-bottom:12px}.green-title{color:var(--green)}.section-right{color:var(--muted);font-size:12px;font-weight:700}
+input{width:100%;height:52px;border:1px solid #dce1e7;border-radius:15px;background:#fff;padding:0 15px;font-size:16px;color:var(--ink);outline:none}input:focus{border-color:#70bb8b;box-shadow:0 0 0 4px rgba(21,148,71,.09)}input::placeholder{color:#aeb5bf}
+.name-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.name-item{display:flex;align-items:center;gap:0}.name-btn{height:40px;padding:0 14px;border-radius:12px 0 0 12px;border:1px solid #cde9d7;background:linear-gradient(180deg,#f5fcf7,#e8f7ed);color:var(--green2);font-size:14px;font-weight:850}.name-btn.active{color:#fff;background:linear-gradient(145deg,#20ad60,#098543);border-color:#098543}.name-del{height:40px;width:30px;border:1px solid #cde9d7;border-left:0;border-radius:0 12px 12px 0;background:#fff5f4;color:var(--red);font-weight:900;font-size:14px}
+.small-btn{height:34px;padding:0 12px;border:1px solid #cde9d7;border-radius:10px;background:#f3fbf6;color:var(--green2);font-weight:800}
+.type-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.type-btn{height:51px;border-radius:14px;border:1px solid #dce1e7;background:#fff;font-size:16px;font-weight:850}.type-btn.lend.selected{color:#fff;background:linear-gradient(145deg,#19ad5e,#0c8744);border-color:#0c8744}.type-btn.repay.selected{color:var(--red);border:1.5px solid #ef4a45;background:#fff}.type-btn.other.selected{color:var(--blue);border:1.5px solid #3981e5;background:#fff}
+.btn{height:50px;border:0;border-radius:14px;font-size:16px;font-weight:900}.primary{color:#fff;background:linear-gradient(145deg,#18aa5d,#0b873f);box-shadow:0 7px 14px rgba(15,137,65,.18)}.outline{background:#fff;border:1px solid #cfe5d7;color:var(--green)}.secondary{background:#f3f5f7;color:#303845}
+.capital-grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:13px;overflow:hidden;margin-bottom:12px}.capital-item{padding:13px 10px;text-align:center}.capital-item+.capital-item{border-left:1px solid var(--line)}.capital-item small{display:block;color:#697483;font-size:13px;margin-bottom:4px}.capital-item b{font-size:24px;color:var(--green);font-variant-numeric:tabular-nums}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.help{margin-top:9px;font-size:12px;line-height:1.6;color:#8993a1}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px}.stat{border-radius:12px;padding:11px 7px;text-align:center;border:1px solid #e8ebef}.stat small{display:block;font-size:12px;margin-bottom:5px}.stat b{font-size:18px;font-variant-numeric:tabular-nums}.stat.red{background:#fff7f6;color:var(--red)}.stat.green{background:#f4fbf6;color:var(--green)}.stat.blue{background:#f4f8ff;color:var(--blue)}.stat.purple{background:#f8f5ff;color:var(--purple)}
+.report-head{padding:15px 16px 7px}.report-wrap{padding:0 10px 12px}.report-card{border:1px solid #e3e8ed;border-radius:15px;overflow:hidden;margin-top:9px}.report-title{display:flex;justify-content:space-between;align-items:center;padding:11px 13px;background:#f8fafb;border-bottom:1px solid #e8edf1}.report-name{font-weight:950;color:var(--green);font-size:16px}.report-total{font-weight:900}.report-grid{display:grid;grid-template-columns:repeat(3,1fr)}.report-cell{padding:11px 8px;text-align:center;border-right:1px solid #edf0f3}.report-cell:last-child{border-right:0}.report-cell small{display:block;color:#7c8794;font-size:12px;margin-bottom:4px}.report-cell b{font-size:16px}.report-cell.debt b{color:var(--red)}.report-cell.repay b{color:var(--green)}.report-cell.net b{color:var(--blue)}
+.search{padding:11px 14px;border-bottom:1px solid var(--line)}.customer-group{margin:10px;border:1px solid #e2e7ec;border-radius:15px;overflow:hidden}.group-head{display:flex;justify-content:space-between;align-items:center;padding:12px 13px;background:#fafbfd;font-weight:900}.customer-name{color:var(--green);font-size:17px;font-weight:950}.group-head .debt{font-size:13px}
+.flow{display:grid;grid-template-columns:55px 1fr auto 34px;gap:8px;align-items:center;padding:10px 11px;border-top:1px solid #edf0f3}.badge{width:54px;text-align:center;border-radius:10px;padding:5px 2px;font-size:12px;font-weight:850}.badge.lend{background:#fff0ef;color:var(--red)}.badge.repay{background:#effaf2;color:var(--green)}.badge.other{background:#eef5ff;color:var(--blue)}.flow-main{min-width:0}.flow-note{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.flow-time{font-size:11px;color:#9aa3ae;margin-top:3px;font-variant-numeric:tabular-nums}.flow-amount{font-size:16px;font-weight:900;white-space:nowrap}.flow-amount.minus{color:var(--red)}.flow-amount.plus{color:var(--green)}.del{width:34px;height:34px;border:1px solid #ffd9d5;background:#fff7f6;color:var(--red);border-radius:10px;font-size:15px}
+.group-total{padding:8px 12px;text-align:right;border-top:1px solid var(--line);font-size:12px;color:#667180;background:#fbfcfd}.empty{text-align:center;padding:32px 10px;color:#9aa3ae;font-size:14px;line-height:1.7}.bottom-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:12px}.bottom-actions button{height:43px;border-radius:14px;background:#fff;border:1px solid #e2e6eb;font-weight:800;color:#46505e}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#18202c;color:#fff;padding:11px 17px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;z-index:99;white-space:nowrap}.toast.show{opacity:1}
+@media(max-width:520px){.app{padding:13px 10px 35px}.top h1{font-size:25px}.stats{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.flow{grid-template-columns:54px 1fr auto 34px}.flow-amount{font-size:15px}}
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="header">
-    <div class="title">今晚流水记账</div>
-    <div id="clock" class="clock">系统时间加载中…</div>
-    <div class="toolbar">
-      <button id="newDay" class="primary">开始新一天</button>
-      <button id="historyBtn">历史账单</button>
-      <button id="currentBtn" disabled>当前账单</button>
-    </div>
-  </div>
 
-  <div id="main">
-    <div class="card">
-      <div><b id="dateTitle"></b><span id="viewBadge" class="badge"></span></div>
-      <div class="formrow" style="margin-top:10px">
-        <input id="customerInput" class="customer-input" placeholder="输入客户姓名">
-        <button id="addCustomer">＋ 新增客户</button>
-      </div>
-      <div id="names" class="names"></div>
-    </div>
-
-    <div class="card">
-      <div class="type toolbar">
-        <button data-type="lend" class="active">借出</button>
-        <button data-type="repay">还款</button>
-        <button data-type="income">其他收入</button>
-      </div>
-      <div class="formrow" style="margin-top:10px">
-        <input id="amount" class="amount" type="number" min="0" step="0.01" placeholder="金额">
-        <input id="note" class="note" placeholder="备注（可不填）">
-        <button id="saveFlow" class="primary">保存流水</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="actions">
-        <button id="addCapital" class="green">＋ 增加本金</button>
-        <button id="resetCapital">重置本金</button>
-        <button id="clearDay" class="danger">清空本日流水</button>
-        <button id="undoDelete" disabled>撤销删除</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <input id="search" style="width:100%" placeholder="搜索客户、备注、金额">
-    </div>
-
-    <div class="card">
-      <div class="stats">
-        <div class="stat">借出<b id="sumLend">0.00</b></div>
-        <div class="stat">还款<b id="sumRepay">0.00</b></div>
-        <div class="stat">其他收入<b id="sumIncome">0.00</b></div>
-        <div class="stat">笔数<b id="count">0</b></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3 style="margin:0 0 8px">本日流水</h3>
-      <div id="ledger"></div>
-    </div>
-
-    <div class="card">
-      <h3 style="margin:0 0 8px">客户累计欠款</h3>
-      <div id="balances"></div>
-    </div>
-
-    <div class="card">
-      <h3 style="margin:0 0 8px">本金</h3>
-      <div id="capitalText">0.00</div>
-    </div>
-  </div>
-
-  <div id="history" class="card" style="display:none">
-    <h3 style="margin-top:0">历史账单</h3>
-    <div id="historyList"></div>
-  </div>
+<div class="top">
+<h1>今晚流水记账</h1>
+<div class="clock">实时系统时间　<b id="clock">--:--:--</b></div>
 </div>
 
-<script>
-(function(){
-"use strict";
+<div class="card">
+<div class="section">
+<div class="section-title green-title">
+<span>♙　客户</span>
+<button class="small-btn" onclick="addCustomer()">＋ 新增客户</button>
+</div>
+<input id="customerInput" autocomplete="off" placeholder="输入或选择客户姓名">
+<div id="nameList" class="name-list"></div>
+</div>
+</div>
 
-var KEY="tonight_ledger_clean_v1";
-var OLD_KEY="tonight_ledger_final_v4";
-var state={version:1,currentDate:"",names:[],days:{}};
-var viewDate="";
-var selectedName="";
-var selectedType="lend";
-var lastDeleted=null;
+<div class="card">
+<div class="section">
+<div class="section-title green-title">
+<span>◎　新增流水</span>
+<span class="section-right">保存时自动记录手机时间</span>
+</div>
+
+<input id="amount" type="number" inputmode="decimal" placeholder="输入金额">
+<input id="note" style="margin-top:10px" placeholder="备注（可不填）">
+
+<div class="type-row">
+<button class="type-btn lend selected" id="lendBtn" onclick="selectType('lend')">↑　借出</button>
+<button class="type-btn repay" id="repayBtn" onclick="selectType('repay')">↓　还款</button>
+</div>
+
+<div class="type-row">
+<button class="type-btn other" id="otherBtn" onclick="selectType('other')">▣　其他收入</button>
+<button class="btn primary" onclick="saveFlow()">保存流水</button>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="section">
+<div class="section-title green-title"><span>♧　本金操作</span></div>
+<div class="capital-grid">
+<div class="capital-item"><small>今晚带入本金</small><b id="capitalIn">¥0.00</b></div>
+<div class="capital-item"><small>当前本金余额</small><b id="capitalNow">¥0.00</b></div>
+</div>
+<div class="grid2">
+<input id="capitalAmount" type="number" inputmode="decimal" placeholder="输入本金金额">
+<input id="capitalNote" placeholder="备注，例如：昨天回款">
+</div>
+<div class="actions">
+<button class="btn outline" onclick="addCapital()">＋ 加入本金</button>
+<button class="btn secondary" onclick="resetCapital()">⟳　重新设置本金</button>
+</div>
+<div class="help">例如今晚带 ¥30,000；昨天有人回款 ¥3,000，可以用“加入本金”把 ¥3,000 加回来。</div>
+</div>
+</div>
+
+<div class="card">
+<div class="section-title green-title" style="padding:15px 16px 6px"><span>▥　今晚统计</span></div>
+<div class="stats">
+<div class="stat red"><small>今晚借出</small><b id="sumLend">¥0.00</b></div>
+<div class="stat green"><small>今晚回款</small><b id="sumRepay">¥0.00</b></div>
+<div class="stat blue"><small>其他收入</small><b id="sumOther">¥0.00</b></div>
+<div class="stat purple"><small>流水笔数</small><b id="count">0</b></div>
+</div>
+</div>
+
+<div class="card">
+<div class="report-head">
+<div class="section-title green-title" style="margin-bottom:0">
+<span>▤　统计报表</span><span class="section-right">每个客户单独统计</span>
+</div>
+</div>
+<div id="report" class="report-wrap"></div>
+</div>
+
+<div class="card">
+<div class="section-title green-title" style="padding:15px 16px 6px"><span>▤　今晚流水</span></div>
+<div class="search"><input id="search" placeholder="⌕　搜索客户、备注或金额"></div>
+<div id="ledger"></div>
+<div class="bottom-actions">
+<button onclick="undoDelete()">↶　撤销删除</button>
+<button onclick="clearToday()">▣　清空今晚流水</button>
+<button onclick="scrollToTop()">↑　回到顶部</button>
+</div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY="tonight_ledger_final_v4";
+let state=JSON.parse(localStorage.getItem(KEY)||'{"capital":0,"flows":[],"names":[]}');
+let selectedType="lend";
+let deleted=null;
+const $=id=>document.getElementById(id);
 
 function pad(n){return String(n).padStart(2,"0")}
-function todayKey(){
-  var d=new Date();
-  return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+function money(n){return "¥"+Number(n||0).toLocaleString("zh-CN",{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+/* 保存流水时直接读取手机当前系统时间 */
+function nowTime(){
+ const d=new Date();
+ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
 }
-function nowText(){
-  var d=new Date();
-  return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+
-    pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
-}
-function validDate(d){return /^\d{4}-\d{2}-\d{2}$/.test(d)}
-function ensureDay(d){
-  if(!state.days[d]) state.days[d]={flows:[],capital:0};
-  if(!Array.isArray(state.days[d].flows)) state.days[d].flows=[];
-}
-function money(n){return Number(n||0).toFixed(2)}
-function save(){localStorage.setItem(KEY,JSON.stringify(state))}
-function load(){
-  try{
-    var raw=localStorage.getItem(KEY);
-    if(raw){
-      var x=JSON.parse(raw);
-      if(x && x.days){state=x}
-    }else{
-      var old=localStorage.getItem(OLD_KEY);
-      if(old){
-        var o=JSON.parse(old);
-        state.names=Array.isArray(o.names)?o.names:[];
-        var oldFlows=Array.isArray(o.flows)?o.flows:[];
-        oldFlows.forEach(function(f){
-          var d=(f.time||"").slice(0,10);
-          if(!validDate(d)) d=todayKey();
-          ensureDay(d);
-          state.days[d].flows.push({
-            id:Date.now()+Math.random(),
-            type:f.type==="repay"?"repay":f.type==="income"?"income":"lend",
-            name:f.name||"",
-            amount:Number(f.amount)||0,
-            note:f.note||"",
-            time:f.time||nowText()
-          });
-        });
-        state.days[todayKey()]=state.days[todayKey()]||{flows:[],capital:Number(o.capital)||0};
-      }
-    }
-  }catch(e){}
-  if(!Array.isArray(state.names))state.names=[];
-  if(!state.days)state.days={};
-  if(!validDate(state.currentDate))state.currentDate=todayKey();
-  var real=todayKey();
-  ensureDay(state.currentDate);
-  if(state.currentDate!==real){
-    state.currentDate=real;
-    ensureDay(real);
-  }
-  viewDate=state.currentDate;
-  save();
-}
+
 function updateClock(){
-  var el=document.getElementById("clock");
-  if(el)el.textContent="系统时间："+nowText();
+ const d=new Date();
+ $("clock").textContent=pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
 }
-function getDay(){ensureDay(viewDate);return state.days[viewDate]}
-function typeText(t){return t==="lend"?"借出":t==="repay"?"还款":"其他收入"}
-function renderNames(){
-  var box=document.getElementById("names");
-  box.innerHTML="";
-  state.names.forEach(function(name){
-    var b=document.createElement("button");
-    b.className="namebtn"+(selectedName===name?" selected":"");
-    b.textContent=name;
-    b.title="双击删除客户名称（不会删除历史流水）";
-    b.addEventListener("click",function(){
-      selectedName=name;
-      document.getElementById("customerInput").value=name;
-      renderNames();
-    });
-    b.addEventListener("dblclick",function(){
-      if(confirm("删除客户“"+name+"”？历史流水不会删除。")){
-        state.names=state.names.filter(function(x){return x!==name});
-        if(selectedName===name)selectedName="";
-        save();render();
-      }
-    });
-    box.appendChild(b);
-  });
+setInterval(updateClock,1000);updateClock();
+
+function showToast(t){
+ const x=$("toast");x.textContent=t;x.classList.add("show");
+ clearTimeout(showToast.timer);
+ showToast.timer=setTimeout(()=>x.classList.remove("show"),1600);
 }
-function renderStats(){
-  var f=getDay().flows, a={lend:0,repay:0,income:0};
-  f.forEach(function(x){a[x.type]+=Number(x.amount)||0});
-  document.getElementById("sumLend").textContent=money(a.lend);
-  document.getElementById("sumRepay").textContent=money(a.repay);
-  document.getElementById("sumIncome").textContent=money(a.income);
-  document.getElementById("count").textContent=f.length;
+
+function selectType(type){
+ selectedType=type;
+ $("lendBtn").classList.toggle("selected",type==="lend");
+ $("repayBtn").classList.toggle("selected",type==="repay");
+ $("otherBtn").classList.toggle("selected",type==="other");
 }
-function renderLedger(){
-  var box=document.getElementById("ledger"), f=getDay().flows.slice().reverse();
-  var q=document.getElementById("search").value.trim().toLowerCase();
-  f=f.filter(function(x){
-    return !q || [x.name,x.note,x.amount,x.time,typeText(x.type)].join(" ").toLowerCase().includes(q);
-  });
-  if(!f.length){box.innerHTML='<div class="empty">暂无流水</div>';return}
-  var table=document.createElement("table");
-  table.innerHTML="<thead><tr><th>时间</th><th>客户</th><th>类型</th><th>金额</th><th>备注</th><th>操作</th></tr></thead>";
-  var tb=document.createElement("tbody");
-  f.forEach(function(x){
-    var tr=document.createElement("tr");
-    tr.innerHTML="<td>"+escapeHtml(x.time.slice(11))+"</td>"+
-      "<td>"+escapeHtml(x.name)+"</td>"+
-      "<td class='"+x.type+"'>"+typeText(x.type)+"</td>"+
-      "<td>"+money(x.amount)+"</td>"+
-      "<td>"+escapeHtml(x.note||"")+"</td>";
-    var td=document.createElement("td");
-    var del=document.createElement("button");
-    del.textContent="删除";
-    del.className="danger";
-    del.disabled=viewDate!==state.currentDate;
-    del.addEventListener("click",function(){deleteFlow(x.id)});
-    td.appendChild(del);tr.appendChild(td);tb.appendChild(tr);
-  });
-  table.appendChild(tb);box.innerHTML="";box.appendChild(table);
-}
-function renderBalances(){
-  var box=document.getElementById("balances"), sums={};
-  Object.keys(state.days).forEach(function(d){
-    state.days[d].flows.forEach(function(x){
-      if(!x.name)return;
-      if(!sums[x.name])sums[x.name]=0;
-      if(x.type==="lend")sums[x.name]+=Number(x.amount)||0;
-      if(x.type==="repay")sums[x.name]-=Number(x.amount)||0;
-    });
-  });
-  var rows=Object.keys(sums).filter(function(n){return sums[n]!==0});
-  if(!rows.length){box.innerHTML='<div class="empty">暂无客户欠款</div>';return}
-  rows.sort(function(a,b){return sums[b]-sums[a]});
-  var table=document.createElement("table");
-  table.innerHTML="<thead><tr><th>客户</th><th>累计欠款</th></tr></thead>";
-  var tb=document.createElement("tbody");
-  rows.forEach(function(n){
-    var tr=document.createElement("tr");
-    tr.innerHTML="<td>"+escapeHtml(n)+"</td><td>"+money(sums[n])+"</td>";
-    tb.appendChild(tr);
-  });
-  table.appendChild(tb);box.innerHTML="";box.appendChild(table);
-}
-function renderHistory(){
-  var box=document.getElementById("historyList"), ds=Object.keys(state.days).sort().reverse();
-  if(!ds.length){box.innerHTML='<div class="empty">暂无历史账单</div>';return}
-  box.innerHTML="";
-  ds.forEach(function(d){
-    var day=state.days[d], lend=0,repay=0;
-    day.flows.forEach(function(x){
-      if(x.type==="lend")lend+=Number(x.amount)||0;
-      if(x.type==="repay")repay+=Number(x.amount)||0;
-    });
-    var row=document.createElement("div");row.className="history-item";
-    var left=document.createElement("div");
-    left.innerHTML="<b>"+d+"</b><div class='badge'>借出 "+money(lend)+"　还款 "+money(repay)+"　"+day.flows.length+" 笔</div>";
-    var b=document.createElement("button");b.textContent="查看";
-    b.addEventListener("click",function(){openHistoryDate(d)});
-    row.appendChild(left);row.appendChild(b);box.appendChild(row);
-  });
-}
-function render(){
-  document.getElementById("dateTitle").textContent="账单日期："+viewDate;
-  document.getElementById("viewBadge").textContent=viewDate===state.currentDate?"（当前）":"（历史，只读）";
-  document.getElementById("currentBtn").disabled=viewDate===state.currentDate;
-  var readonly=viewDate!==state.currentDate;
-  ["customerInput","addCustomer","amount","note","saveFlow","addCapital","resetCapital","clearDay"].forEach(function(id){
-    document.getElementById(id).disabled=readonly;
-  });
-  renderNames();renderStats();renderLedger();renderBalances();
-  document.getElementById("capitalText").textContent=money(getDay().capital);
-  renderHistory();
-}
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})
-}
+
 function addCustomer(){
-  if(viewDate!==state.currentDate)return;
-  var input=document.getElementById("customerInput"),name=input.value.trim();
-  if(!name){alert("请先输入客户姓名");input.focus();return}
-  if(!state.names.includes(name))state.names.push(name);
-  selectedName=name;save();render();
+ const v=prompt("请输入客户姓名");
+ if(v===null)return;
+ const name=v.trim();
+ if(!name)return;
+ if(!state.names.includes(name))state.names.unshift(name);
+ state.names=state.names.slice(0,50);
+ saveData();
+ chooseName(name);
+ showToast("已选择："+name);
 }
+
+function chooseName(name){
+ $("customerInput").value=name;
+ document.querySelectorAll(".name-btn").forEach(x=>x.classList.remove("active"));
+ const btn=[...document.querySelectorAll(".name-btn")].find(x=>x.dataset.name===name);
+ if(btn)btn.classList.add("active");
+ $("amount").focus();
+ $("amount").scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+/* 删除已保存客户：只删客户名单，不删历史流水 */
+function deleteCustomer(name){
+ const ok=confirm(
+  "确定删除客户“"+name+"”吗？\n\n"+
+  "只会从客户名单中删除，历史流水不会删除。"
+ );
+ if(!ok)return;
+
+ state.names=state.names.filter(n=>n!==name);
+
+ if($("customerInput").value.trim()===name){
+  $("customerInput").value="";
+ }
+
+ saveData();
+ showToast("客户已删除，历史流水保留");
+}
+
 function saveFlow(){
-  if(viewDate!==state.currentDate)return;
-  var name=document.getElementById("customerInput").value.trim();
-  var amount=Number(document.getElementById("amount").value);
-  var note=document.getElementById("note").value.trim();
-  if(!name){alert("请选择或输入客户姓名");return}
-  if(!(amount>0)){alert("请输入大于0的金额");return}
-  if(!state.names.includes(name))state.names.push(name);
-  getDay().flows.push({id:Date.now()+Math.random(),type:selectedType,name:name,amount:amount,note:note,time:nowText()});
-  document.getElementById("amount").value="";
-  document.getElementById("note").value="";
-  selectedName=name;save();render();
+ const customer=$("customerInput").value.trim();
+ const amount=Number($("amount").value);
+
+ if(!customer){
+  showToast("请先选择客户");
+  $("customerInput").focus();
+  return;
+ }
+ if(!amount||amount<=0){
+  showToast("请输入正确金额");
+  $("amount").focus();
+  return;
+ }
+
+ const item={
+  id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),
+  customer:customer,
+  amount:amount,
+  type:selectedType,
+  note:$("note").value.trim(),
+  time:nowTime()
+ };
+
+ state.flows.push(item);
+ if(!state.names.includes(customer))state.names.unshift(customer);
+ state.names=state.names.slice(0,50);
+
+ $("amount").value="";
+ $("note").value="";
+
+ saveData();
+ showToast("保存成功，流水已更新");
+
+ setTimeout(()=>{
+  const el=document.getElementById("ledger");
+  if(el)el.scrollIntoView({behavior:"smooth",block:"center"});
+ },120);
 }
+
 function addCapital(){
-  var n=Number(prompt("请输入增加的本金：","0"));
-  if(!(n>0))return;
-  getDay().capital+=n;save();render();
+ const amount=Number($("capitalAmount").value);
+ if(!amount||amount<=0){showToast("请输入本金金额");return}
+ state.capital+=amount;
+ $("capitalAmount").value="";
+ $("capitalNote").value="";
+ saveData();
+ showToast("本金已加入");
 }
+
 function resetCapital(){
-  if(confirm("确定把本日本金重置为 0 吗？")){getDay().capital=0;save();render()}
+ const v=prompt("请输入今晚带入本金金额",String(state.capital||0));
+ if(v===null)return;
+ const amount=Number(v);
+ if(!Number.isFinite(amount)||amount<0){showToast("金额不正确");return}
+ state.capital=amount;
+ saveData();
+ showToast("本金已重新设置");
 }
+
+/* 删除流水必须确认 */
 function deleteFlow(id){
-  var f=getDay().flows,i=f.findIndex(function(x){return x.id===id});
-  if(i<0)return;
-  if(!confirm("确定删除这笔流水吗？"))return;
-  lastDeleted={date:viewDate,flow:f[i],index:i};
-  f.splice(i,1);save();render();
-  document.getElementById("undoDelete").disabled=false;
+ const f=state.flows.find(x=>x.id===id);
+ if(!f)return;
+ const type=f.type==="lend"?"借出":f.type==="repay"?"还款":"其他收入";
+ const ok=confirm(
+  "确定删除这笔流水吗？\n\n客户："+f.customer+
+  "\n类型："+type+
+  "\n金额："+money(f.amount)+
+  "\n时间："+f.time
+ );
+ if(!ok)return;
+
+ const i=state.flows.findIndex(x=>x.id===id);
+ if(i<0)return;
+ deleted=state.flows.splice(i,1)[0];
+ saveData();
+ showToast("已删除，可撤销");
 }
+
 function undoDelete(){
-  if(!lastDeleted)return;
-  ensureDay(lastDeleted.date);
-  state.days[lastDeleted.date].flows.splice(lastDeleted.index,0,lastDeleted.flow);
-  lastDeleted=null;save();render();
-  document.getElementById("undoDelete").disabled=true;
+ if(!deleted){showToast("没有可以撤销的记录");return}
+ state.flows.push(deleted);
+ deleted=null;
+ saveData();
+ showToast("已恢复");
 }
-function clearDay(){
-  if(!confirm("确定清空“"+viewDate+"”的全部流水吗？此操作可用撤销删除恢复不了，请确认。"))return;
-  getDay().flows=[];save();render();
+
+function clearToday(){
+ if(!state.flows.length){showToast("今晚没有流水");return}
+ if(confirm("确定清空今晚全部流水吗？")){
+  state.flows=[];
+  saveData();
+  showToast("今晚流水已清空");
+ }
 }
-function startNewDay(){
-  var real=todayKey();
-  if(state.currentDate!==real){
-    state.currentDate=real;ensureDay(real);viewDate=real;save();render();return;
-  }
-  var d=new Date();d.setDate(d.getDate()+1);
-  var next=d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
-  if(!confirm("手机当前日期还是 "+real+"。\n要提前建立下一天 "+next+" 的账单吗？"))return;
-  state.currentDate=next;ensureDay(next);viewDate=next;save();render();
+
+function escapeHtml(t){
+ return String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
-function openHistory(){
-  document.getElementById("main").style.display="none";
-  document.getElementById("history").style.display="block";
-  renderHistory();
+function escapeJs(t){
+ return String(t).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/\n/g,"\\n").replace(/\r/g,"\\r");
 }
-function openHistoryDate(d){
-  viewDate=d;
-  document.getElementById("main").style.display="block";
-  document.getElementById("history").style.display="none";
-  render();
+
+function renderReport(){
+ const map={};
+ state.flows.forEach(f=>{
+  if(!map[f.customer])map[f.customer]={lend:0,repay:0,other:0};
+  if(f.type==="lend")map[f.customer].lend+=f.amount;
+  else if(f.type==="repay")map[f.customer].repay+=f.amount;
+  else map[f.customer].other+=f.amount;
+ });
+
+ const names=Object.keys(map);
+ if(!names.length){
+  $("report").innerHTML='<div class="empty">今晚还没有可以统计的客户</div>';
+  return;
+ }
+
+ let html="";
+ names.forEach(name=>{
+  const x=map[name];
+  const debt=x.lend-x.repay;
+  html+=`
+  <div class="report-card">
+   <div class="report-title">
+    <span class="report-name">${escapeHtml(name)}</span>
+    <span class="report-total">当前应收 ${money(debt)}</span>
+   </div>
+   <div class="report-grid">
+    <div class="report-cell debt"><small>借出总额</small><b>${money(x.lend)}</b></div>
+    <div class="report-cell repay"><small>回款总额</small><b>${money(x.repay)}</b></div>
+    <div class="report-cell net"><small>当前应收</small><b>${money(debt)}</b></div>
+   </div>
+  </div>`;
+ });
+ $("report").innerHTML=html;
 }
-function backCurrent(){
-  state.currentDate=todayKey();ensureDay(state.currentDate);viewDate=state.currentDate;save();
-  document.getElementById("main").style.display="block";
-  document.getElementById("history").style.display="none";render();
-}
-document.addEventListener("DOMContentLoaded",function(){
-  load();
-  updateClock();
-  setInterval(updateClock,1000);
-  document.getElementById("addCustomer").addEventListener("click",addCustomer);
-  document.getElementById("saveFlow").addEventListener("click",saveFlow);
-  document.getElementById("newDay").addEventListener("click",startNewDay);
-  document.getElementById("historyBtn").addEventListener("click",openHistory);
-  document.getElementById("currentBtn").addEventListener("click",backCurrent);
-  document.getElementById("addCapital").addEventListener("click",addCapital);
-  document.getElementById("resetCapital").addEventListener("click",resetCapital);
-  document.getElementById("clearDay").addEventListener("click",clearDay);
-  document.getElementById("undoDelete").addEventListener("click",undoDelete);
-  document.getElementById("search").addEventListener("input",renderLedger);
-  document.getElementById("customerInput").addEventListener("keydown",function(e){if(e.key==="Enter")addCustomer()});
-  document.getElementById("amount").addEventListener("keydown",function(e){if(e.key==="Enter")saveFlow()});
-  document.querySelectorAll(".type button").forEach(function(b){
-    b.addEventListener("click",function(){
-      selectedType=b.dataset.type;
-      document.querySelectorAll(".type button").forEach(function(x){x.classList.remove("active")});
-      b.classList.add("active");
-    });
+
+function render(){
+ $("nameList").innerHTML=state.names.slice(0,20).map(n=>`
+  <div class="name-item">
+   <button class="name-btn" data-name="${escapeHtml(n)}" onclick="chooseName('${escapeJs(n)}')">${escapeHtml(n)}</button>
+   <button class="name-del" title="删除客户" onclick="deleteCustomer('${escapeJs(n)}')">×</button>
+  </div>
+ `).join("");
+
+ let lend=0,repay=0,other=0;
+ state.flows.forEach(f=>{
+  if(f.type==="lend")lend+=f.amount;
+  else if(f.type==="repay")repay+=f.amount;
+  else other+=f.amount;
+ });
+
+ $("sumLend").textContent=money(lend);
+ $("sumRepay").textContent=money(repay);
+ $("sumOther").textContent=money(other);
+ $("count").textContent=state.flows.length;
+ $("capitalIn").textContent=money(state.capital);
+ $("capitalNow").textContent=money(state.capital-lend+repay+other);
+
+ renderReport();
+
+ const q=$("search").value.trim().toLowerCase();
+ const flows=state.flows.filter(f=>!q||(`${f.customer} ${f.note} ${f.amount}`).toLowerCase().includes(q));
+ const groups={};
+
+ flows.forEach(f=>{
+  if(!groups[f.customer])groups[f.customer]=[];
+  groups[f.customer].push(f);
+ });
+
+ let html="";
+ Object.entries(groups).forEach(([customer,list])=>{
+  let balance=0;
+  list.forEach(f=>{
+   if(f.type==="lend")balance+=f.amount;
+   else if(f.type==="repay")balance-=f.amount;
   });
-  render();
-});
-})();
+
+  html+=`
+  <div class="customer-group">
+   <div class="group-head">
+    <span class="customer-name">${escapeHtml(customer)}</span>
+    <span class="debt">${balance>=0?"欠款":"结余"} ${money(Math.abs(balance))}</span>
+   </div>`;
+
+  list.slice().sort((a,b)=>b.id.localeCompare(a.id)).forEach(f=>{
+   const label=f.type==="lend"?"借出":f.type==="repay"?"还款":"其他收入";
+   const sign=f.type==="lend"?"-":"+";
+   html+=`
+   <div class="flow">
+    <span class="badge ${f.type}">${label}</span>
+    <div class="flow-main">
+     <div class="flow-note">${escapeHtml(f.note||"无备注")}</div>
+     <div class="flow-time">${escapeHtml(f.time)}</div>
+    </div>
+    <div class="flow-amount ${f.type==="lend"?"minus":"plus"}">${sign}${money(f.amount).slice(1)}</div>
+    <button class="del" onclick="deleteFlow('${f.id}')">⌫</button>
+   </div>`;
+  });
+
+  html+=`<div class="group-total">本客户 ${balance>=0?"欠款":"结余"} ${money(Math.abs(balance))}</div></div>`;
+ });
+
+ if(!html)html='<div class="empty">今晚还没有流水<br>选择客户、输入金额后保存即可</div>';
+ $("ledger").innerHTML=html;
+}
+
+function saveData(){
+ localStorage.setItem(KEY,JSON.stringify(state));
+ render();
+}
+
+function scrollToTop(){window.scrollTo({top:0,behavior:"smooth"})}
+
+$("search").addEventListener("input",render);
+$("customerInput").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("amount").focus()}});
+$("amount").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();saveFlow()}});
+
+render();
 </script>
 </body>
 </html>
