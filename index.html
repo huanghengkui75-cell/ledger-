@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -184,7 +183,7 @@ function loadState(){
   s.names=Array.isArray(old.names)?old.names.slice(0,50):[];
   const oldFlows=Array.isArray(old.flows)?old.flows:[];
   oldFlows.forEach(f=>{
-   const d=(String(f.time||"").slice(0,10).match(/^\\d{4}-\\d{2}-\\d{2}$/))
+   const d=(String(f.time||"").slice(0,10).match(/^\d{4}-\d{2}-\d{2}$/))
      ?String(f.time).slice(0,10):todayKey();
    if(!s.days[d])s.days[d]=makeDay();
    s.days[d].flows.push(f);
@@ -432,7 +431,7 @@ function escapeHtml(t){
  return String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
 function escapeJs(t){
- return String(t).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/\\n/g,"\\\\n").replace(/\\r/g,"\\\\r");
+ return String(t).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/\n/g,"\\n").replace(/\r/g,"\\r");
 }
 
 function getAllFlows(){
