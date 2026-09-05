@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f5f7fa">
-<title>天马记账系统</title>
+<title>TianMa记账系统</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--bg:#f5f7fa;--card:#fff;--ink:#17202d;--muted:#8c96a4;--line:#e5e9ee;--green:#159447;--green2:#087b39;--red:#df3d39;--blue:#1267d6;--purple:#7056d8}
@@ -32,7 +32,7 @@ input{width:100%;height:52px;border:1px solid #dce1e7;border-radius:15px;backgro
 <div class="app">
 
 <div class="top">
-<h1>今晚流水记账</h1>
+<h1>TianMa记账系统</h1>
 <div class="clock">实时系统时间　<b id="clock">--:--:--</b></div>
 <div style="display:flex;gap:8px;justify-content:center;margin-top:10px">
 <button class="small-btn" onclick="showHistory()">📅 历史账单</button>
@@ -468,6 +468,79 @@ function renderAllReport(){
  });
  $("allReport").innerHTML=html;
 }
+
+function renderGrandTotal(){
+ const all=[];
+ Object.keys(db.days).forEach(d=>{
+  (db.days[d].flows||[]).forEach(f=>all.push(f));
+ });
+ let lend=0,repay=0,other=0;
+ all.forEach(f=>{
+  if(f.type==="lend")lend+=Number(f.amount)||0;
+  else if(f.type==="repay")repay+=Number(f.amount)||0;
+  else other+=Number(f.amount)||0;
+ });
+ const outside=lend-repay;
+ $("grandTotal").innerHTML=
+  '<div style="font-size:16px;font-weight:900;margin-bottom:10px">💰 全部资金总计</div>'+
+  '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;text-align:center">'+
+  '<div><small style="color:#7c8794">全部借出</small><br><b style="color:#df3d39;font-size:18px">'+money(lend)+'</b></div>'+
+  '<div><small style="color:#7c8794">全部还款</small><br><b style="color:#159447;font-size:18px">'+money(repay)+'</b></div>'+
+  '<div><small style="color:#7c8794">外面未收</small><br><b style="color:#1267d6;font-size:18px">'+money(outside)+'</b></div>'+
+  '</div>'+
+  '<div style="margin-top:9px;text-align:center;color:#7c8794;font-size:12px">计算方式：全部借出 − 全部还款</div>';
+}
+
+function showGlobalSearch(){
+ const panel=$("globalSearchPanel");
+ panel.style.display=panel.style.display==="none"?"block":"none";
+ if(panel.style.display==="block"){
+  $("globalSearchInput").focus();
+  renderGlobalSearch();
+ }
+}
+function renderGlobalSearch(){
+ const q=$("globalSearchInput").value.trim().toLowerCase();
+ const rows=[];
+ Object.keys(db.days).sort().reverse().forEach(d=>{
+  (db.days[d].flows||[]).forEach(f=>{
+   const text=[d,f.time,f.customer,f.note,f.amount,
+     f.type==="lend"?"借出":f.type==="repay"?"还款":"其他收入"].join(" ").toLowerCase();
+   if(!q || text.includes(q)) rows.push({...f,date:d});
+  });
+ });
+ let lend=0,repay=0,other=0;
+ rows.forEach(f=>{
+  if(f.type==="lend")lend+=Number(f.amount)||0;
+  else if(f.type==="repay")repay+=Number(f.amount)||0;
+  else other+=Number(f.amount)||0;
+ });
+ let html=
+  '<div style="padding:11px;border:1px solid #e3e8ed;border-radius:13px;background:#fafbfd;margin-bottom:9px">'+
+  '<b>搜索结果：'+rows.length+' 笔</b>'+
+  '<div class="help">借出 '+money(lend)+'　还款 '+money(repay)+'　其他收入 '+money(other)+
+  '<br><b style="color:#1267d6">搜索结果未收：'+money(lend-repay)+'</b></div></div>';
+ if(!rows.length){
+  $("globalSearchResult").innerHTML=html+'<div class="empty">没有找到相关账单</div>';
+  return;
+ }
+ html+='<div class="customer-group">';
+ rows.forEach(f=>{
+  const label=f.type==="lend"?"借出":f.type==="repay"?"还款":"其他收入";
+  const sign=f.type==="lend"?"-":"+";
+  html+=`<div class="flow">
+   <span class="badge ${f.type}">${label}</span>
+   <div class="flow-main">
+    <div class="flow-note">${escapeHtml(f.customer)}　${escapeHtml(f.note||"")}</div>
+    <div class="flow-time">${escapeHtml(f.date)}　${escapeHtml(f.time||"")}</div>
+   </div>
+   <div class="flow-amount ${f.type==="lend"?"minus":"plus"}">${sign}${money(f.amount).slice(1)}</div>
+   <span></span>
+  </div>`;
+ });
+ html+='</div>';
+ $("globalSearchResult").innerHTML=html;
+}
 function render(){
  $("nameList").innerHTML=db.names.slice(0,20).map(n=>`
   <div class="name-item">
@@ -546,6 +619,7 @@ function saveData(){
 function scrollToTop(){window.scrollTo({top:0,behavior:"smooth"})}
 
 $("search").addEventListener("input",render);
+if($("globalSearchInput"))$("globalSearchInput").addEventListener("input",renderGlobalSearch);
 $("customerInput").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("amount").focus()}});
 $("amount").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();saveFlow()}});
 
