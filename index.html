@@ -103,19 +103,41 @@ input{width:100%;height:52px;border:1px solid #dce1e7;border-radius:15px;backgro
 </div>
 </div>
 
+<div class="card" id="allMoneyBox">
+ <div class="section-title green-title" style="padding:15px 16px 6px">
+  <span>💰 全部借款总金额</span>
+  <span class="section-right">全部历史累计</span>
+ </div>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px">
+  <div style="padding:15px 8px;text-align:center;border-radius:14px;background:#fff0ef;border:1px solid #ffd9d5">
+   <div style="font-size:13px;color:#df3d39">全部借出</div>
+   <div id="grandLend" style="font-size:23px;font-weight:900;color:#df3d39;margin-top:6px">¥0.00</div>
+  </div>
+  <div style="padding:15px 8px;text-align:center;border-radius:14px;background:#effaf2;border:1px solid #cde9d7">
+   <div style="font-size:13px;color:#159447">全部还款</div>
+   <div id="grandRepay" style="font-size:23px;font-weight:900;color:#159447;margin-top:6px">¥0.00</div>
+  </div>
+ </div>
+ <div style="margin:0 10px 12px;padding:14px;text-align:center;border-radius:14px;background:#f4f8ff;border:1px solid #d9e7fa">
+  <div style="font-size:13px;color:#1267d6">外面现在还欠我的钱</div>
+  <div id="grandOutside" style="font-size:26px;font-weight:900;color:#1267d6;margin-top:5px">¥0.00</div>
+  <div style="font-size:11px;color:#8c96a4;margin-top:5px">全部借出 − 全部还款</div>
+ </div>
+</div>
+
 <div class="card">
 <div class="report-head">
 <div class="section-title green-title" style="margin-bottom:0">
-<span>▤　统计报表</span><span class="section-right">每个客户单独统计</span>
+<span>▤　总报表</span><span class="section-right">每个客户单独统计</span>
 </div>
 </div>
 <div id="report" class="report-wrap"></div>
 </div>
 
 <div class="card">
-<div class="section-title green-title" style="padding:15px 16px 6px"><span>▤　今晚流水</span></div>
-<div class="search"><input id="search" placeholder="⌕　搜索客户、备注或金额"></div>
-<div id="ledger"></div>
+<div class="section-title green-title" style="padding:15px 16px 6px"><span>🔎　历史搜索全部</span></div>
+<div class="search"><input id="search" placeholder="⌕　搜索全部历史账单：客户、备注或金额"></div>
+<div style="padding:0 14px 8px;color:#8c96a4;font-size:12px">这里显示并搜索全部历史账单，不限日期。</div><div id="ledger"></div>
 <div class="bottom-actions">
 <button onclick="undoDelete()">↶　撤销删除</button>
 <button onclick="clearToday()">▣　清空今晚流水</button>
@@ -355,140 +377,104 @@ function escapeJs(t){
 
 function renderReport(){
  const map={};
- day().flows.forEach(f=>{
-  if(!map[f.customer])map[f.customer]={lend:0,repay:0,other:0};
-  if(f.type==="lend")map[f.customer].lend+=f.amount;
-  else if(f.type==="repay")map[f.customer].repay+=f.amount;
-  else map[f.customer].other+=f.amount;
+ Object.keys(db.days||{}).forEach(date=>{
+  (db.days[date].flows||[]).forEach(f=>{
+   if(!map[f.customer])map[f.customer]={lend:0,repay:0,other:0,flows:[]};
+   if(f.type==="lend")map[f.customer].lend+=Number(f.amount)||0;
+   else if(f.type==="repay")map[f.customer].repay+=Number(f.amount)||0;
+   else map[f.customer].other+=Number(f.amount)||0;
+   map[f.customer].flows.push({...f,date});
+  });
  });
 
  const names=Object.keys(map);
  if(!names.length){
-  $("report").innerHTML='<div class="empty">今晚还没有可以统计的客户</div>';
+  $("report").innerHTML='<div class="empty">暂无总报表</div>';
   return;
  }
 
  let html="";
- names.forEach(name=>{
+ names.sort((a,b)=>(map[b].lend-map[b].repay)-(map[a].lend-map[a].repay));
+ names.forEach((name,i)=>{
   const x=map[name];
   const debt=x.lend-x.repay;
+  const id="debtDetail_"+i;
+
   html+=`
   <div class="report-card">
    <div class="report-title">
-    <span class="report-name">${escapeHtml(name)}</span>
-    <span class="report-total">当前应收 ${money(debt)}</span>
+    <div>
+     <div class="report-name">${escapeHtml(name)}</div>
+     <div style="font-size:12px;color:#7c8794;margin-top:4px">
+      累计借出 ${money(x.lend)}　累计还款 ${money(x.repay)}
+     </div>
+    </div>
+    <button class="small-btn" onclick="toggleDebtDetail('${id}',this)">查看欠款明细</button>
    </div>
+
    <div class="report-grid">
-    <div class="report-cell debt"><small>借出总额</small><b>${money(x.lend)}</b></div>
-    <div class="report-cell repay"><small>回款总额</small><b>${money(x.repay)}</b></div>
-    <div class="report-cell net"><small>当前应收</small><b>${money(debt)}</b></div>
+    <div class="report-cell debt">
+     <small>应借款</small>
+     <b>${money(x.lend)}</b>
+    </div>
+    <div class="report-cell repay">
+     <small>已还款</small>
+     <b>${money(x.repay)}</b>
+    </div>
+    <div class="report-cell net">
+     <small>应欠款</small>
+     <b>${money(debt)}</b>
+    </div>
+   </div>
+
+   <div id="${id}" style="display:none;padding:10px 12px;border-top:1px solid #edf0f3;background:#fbfcfd">
+    <div style="font-weight:900;font-size:14px;margin-bottom:7px;color:#46505e">
+     ${escapeHtml(name)} 欠款组成明细
+    </div>
+    ${x.flows.slice().sort((a,b)=>(b.time||"").localeCompare(a.time||"")).map(f=>{
+      const label=f.type==="lend"?"借出":f.type==="repay"?"还款":"其他收入";
+      const color=f.type==="lend"?"#df3d39":f.type==="repay"?"#159447":"#1267d6";
+      const sign=f.type==="lend"?"+":f.type==="repay"?"-":"+";
+      return `
+      <div style="display:grid;grid-template-columns:78px 1fr auto;gap:7px;padding:9px 0;border-bottom:1px solid #edf0f3;font-size:13px">
+       <div style="color:#7c8794">${escapeHtml(f.date)}</div>
+       <div>
+        <b style="color:${color}">${label}</b>
+        ${f.note?`　${escapeHtml(f.note)}`:""}
+        <div style="font-size:11px;color:#9aa3ae;margin-top:3px">${escapeHtml(f.time||"")}</div>
+       </div>
+       <b style="color:${color}">${sign}${money(f.amount).slice(1)}</b>
+      </div>`;
+    }).join("")}
+    <div style="padding-top:10px;text-align:right;font-size:13px;font-weight:900;color:#df3d39">
+     应欠款：${money(x.lend)} − ${money(x.repay)} = ${money(debt)}
+    </div>
    </div>
   </div>`;
  });
  $("report").innerHTML=html;
 }
 
-
-function showHistory(){
- viewingHistory=true;
- $("historyPanel").style.display="block";
- $("allReportPanel").style.display="none";
- $("backTodayBtn").style.display="inline-block";
- renderHistory();
- $("historyPanel").scrollIntoView({behavior:"smooth",block:"start"});
-}
-function renderHistory(){
- const box=$("historyList");
- const dates=Object.keys(db.days).sort().reverse();
- if(!dates.length){box.innerHTML='<div class="empty">暂无历史账单</div>';return}
- box.innerHTML=dates.map(d=>{
-  const f=db.days[d].flows||[];
-  let lend=0,repay=0,other=0;
-  f.forEach(x=>{if(x.type==="lend")lend+=Number(x.amount)||0;else if(x.type==="repay")repay+=Number(x.amount)||0;else other+=Number(x.amount)||0});
-  return `<div style="padding:12px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;gap:8px">
-   <div><b>${d}</b><div class="help">借出 ${money(lend)}　还款 ${money(repay)}　其他 ${money(other)}　共 ${f.length} 笔</div></div>
-   <button class="small-btn" onclick="openDate('${d}')">查看明细</button>
-  </div>`;
- }).join("");
-}
-function openDate(d){
- currentDate=d;viewingHistory=true;
- $("historyPanel").style.display="block";
- $("allReportPanel").style.display="none";
- $("backTodayBtn").style.display="inline-block";
- render();
-}
-function backToday(){
- currentDate=dateKey();ensureDay(currentDate);viewingHistory=false;
- $("historyPanel").style.display="none";
- $("allReportPanel").style.display="none";
- $("backTodayBtn").style.display="none";
- render();
-}
-function showAllReport(){
- $("historyPanel").style.display="none";
- $("allReportPanel").style.display="block";
- renderAllReport();
- $("allReportPanel").scrollIntoView({behavior:"smooth",block:"start"});
-}
-function renderAllReport(){
- const map={};
- Object.keys(db.days).sort().forEach(d=>{
-  (db.days[d].flows||[]).forEach(f=>{
-   if(!map[f.customer])map[f.customer]={lend:0,repay:0,other:0,flows:[]};
-   if(f.type==="lend")map[f.customer].lend+=Number(f.amount)||0;
-   else if(f.type==="repay")map[f.customer].repay+=Number(f.amount)||0;
-   else map[f.customer].other+=Number(f.amount)||0;
-   map[f.customer].flows.push({...f,date:d});
-  });
- });
- const names=Object.keys(map);
- if(!names.length){$("allReport").innerHTML='<div class="empty">暂无总流水</div>';return}
- let html="";
- names.sort((a,b)=>(map[b].lend-map[b].repay)-(map[a].lend-map[a].repay)).forEach(name=>{
-  const x=map[name],debt=x.lend-x.repay;
-  html+=`<div class="report-card">
-   <div class="report-title"><span class="report-name">${escapeHtml(name)}</span><span class="report-total">当前应收 ${money(debt)}</span></div>
-   <div class="report-grid">
-    <div class="report-cell debt"><small>累计借出</small><b>${money(x.lend)}</b></div>
-    <div class="report-cell repay"><small>累计还款</small><b>${money(x.repay)}</b></div>
-    <div class="report-cell net"><small>当前应收</small><b>${money(debt)}</b></div>
-   </div>
-   <div style="padding:10px 12px">
-   ${x.flows.slice().sort((a,b)=>(b.time||"").localeCompare(a.time||"")).map(f=>{
-    const label=f.type==="lend"?"借出":f.type==="repay"?"还款":"其他收入";
-    return `<div style="display:grid;grid-template-columns:82px 1fr auto;gap:7px;padding:7px 0;border-bottom:1px solid #f1f2f4;font-size:13px">
-     <span style="color:#7c8794">${f.date}</span>
-     <span><b class="${f.type}">${label}</b>　${escapeHtml(f.note||"无备注")}<br><small style="color:#9aa3ae">${escapeHtml(f.time||"")}</small></span>
-     <b>${money(f.amount)}</b>
-    </div>`;
-   }).join("")}
-   </div>
-  </div>`;
- });
- $("allReport").innerHTML=html;
+function toggleDebtDetail(id,btn){
+ const el=$(id);
+ if(!el)return;
+ const open=el.style.display==="block";
+ el.style.display=open?"none":"block";
+ btn.textContent=open?"查看欠款明细":"收起欠款明细";
 }
 
 function renderGrandTotal(){
- const all=[];
- Object.keys(db.days).forEach(d=>{
-  (db.days[d].flows||[]).forEach(f=>all.push(f));
- });
- let lend=0,repay=0,other=0;
- all.forEach(f=>{
-  if(f.type==="lend")lend+=Number(f.amount)||0;
-  else if(f.type==="repay")repay+=Number(f.amount)||0;
-  else other+=Number(f.amount)||0;
+ let lend=0,repay=0;
+ Object.keys(db.days||{}).forEach(d=>{
+  (db.days[d].flows||[]).forEach(f=>{
+   if(f.type==="lend") lend+=Number(f.amount)||0;
+   if(f.type==="repay") repay+=Number(f.amount)||0;
+  });
  });
  const outside=lend-repay;
- $("grandTotal").innerHTML=
-  '<div style="font-size:16px;font-weight:900;margin-bottom:10px">💰 全部资金总计</div>'+
-  '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;text-align:center">'+
-  '<div><small style="color:#7c8794">全部借出</small><br><b style="color:#df3d39;font-size:18px">'+money(lend)+'</b></div>'+
-  '<div><small style="color:#7c8794">全部还款</small><br><b style="color:#159447;font-size:18px">'+money(repay)+'</b></div>'+
-  '<div><small style="color:#7c8794">外面未收</small><br><b style="color:#1267d6;font-size:18px">'+money(outside)+'</b></div>'+
-  '</div>'+
-  '<div style="margin-top:9px;text-align:center;color:#7c8794;font-size:12px">计算方式：全部借出 − 全部还款</div>';
+ if($("grandLend"))$("grandLend").textContent=money(lend);
+ if($("grandRepay"))$("grandRepay").textContent=money(repay);
+ if($("grandOutside"))$("grandOutside").textContent=money(outside);
 }
 
 function showGlobalSearch(){
@@ -518,8 +504,11 @@ function renderGlobalSearch(){
  let html=
   '<div style="padding:11px;border:1px solid #e3e8ed;border-radius:13px;background:#fafbfd;margin-bottom:9px">'+
   '<b>搜索结果：'+rows.length+' 笔</b>'+
-  '<div class="help">借出 '+money(lend)+'　还款 '+money(repay)+'　其他收入 '+money(other)+
-  '<br><b style="color:#1267d6">搜索结果未收：'+money(lend-repay)+'</b></div></div>';
+  '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px;text-align:center">'+
+  '<div style="padding:9px;background:#fff0ef;border-radius:10px"><small>全部借出</small><br><b style="color:#df3d39">'+money(lend)+'</b></div>'+
+  '<div style="padding:9px;background:#effaf2;border-radius:10px"><small>全部还款</small><br><b style="color:#159447">'+money(repay)+'</b></div></div>'+
+  '<div style="margin-top:7px;padding:9px;text-align:center;background:#f4f8ff;border-radius:10px"><small>外面未收</small><br><b style="color:#1267d6;font-size:18px">'+money(lend-repay)+'</b></div>'+
+  '<div class="help">其他收入 '+money(other)+'</div></div>';
  if(!rows.length){
   $("globalSearchResult").innerHTML=html+'<div class="empty">没有找到相关账单</div>';
   return;
@@ -607,7 +596,7 @@ function render(){
   html+=`<div class="group-total">本客户 ${balance>=0?"欠款":"结余"} ${money(Math.abs(balance))}</div></div>`;
  });
 
- if(!html)html='<div class="empty">今晚还没有流水<br>选择客户、输入金额后保存即可</div>';
+ if(!html)html='<div class="empty">暂时没有历史流水<br>所有日期的账单都会在这里搜索</div>';
  $("ledger").innerHTML=html;
 }
 
