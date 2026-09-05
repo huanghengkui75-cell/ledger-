@@ -34,6 +34,11 @@ input{width:100%;height:52px;border:1px solid #dce1e7;border-radius:15px;backgro
 <div class="top">
 <h1>今晚流水记账</h1>
 <div class="clock">实时系统时间　<b id="clock">--:--:--</b></div>
+<div style="display:flex;gap:8px;justify-content:center;margin-top:10px">
+<button class="small-btn" onclick="showHistory()">📅 历史账单</button>
+<button class="small-btn" onclick="showAllReport()">📊 总报表</button>
+<button class="small-btn" id="backTodayBtn" style="display:none" onclick="backToday()">↩ 回到今天</button>
+</div>
 </div>
 
 <div class="card">
@@ -119,14 +124,56 @@ input{width:100%;height:52px;border:1px solid #dce1e7;border-radius:15px;backgro
 </div>
 
 </div>
+<div id="historyPanel" class="card" style="display:none;margin:0 12px 30px">
+<div class="section">
+<div class="section-title green-title"><span>📅 历史账单</span></div>
+<div id="historyList"></div>
+</div></div>
+<div id="allReportPanel" class="card" style="display:none;margin:0 12px 30px">
+<div class="section">
+<div class="section-title green-title"><span>📊 总报表</span><span class="section-right">全部日期累计</span></div>
+<div id="allReport"></div>
+</div></div>
 <div class="toast" id="toast"></div>
 
 <script>
-const KEY="tonight_ledger_final_v4";
-let state=JSON.parse(localStorage.getItem(KEY)||'{"capital":0,"flows":[],"names":[]}');
+const KEY="tonight_ledger_final_v5";
+const OLD_KEY="tonight_ledger_final_v4";
 let selectedType="lend";
 let deleted=null;
+let currentDate="";
+let viewingHistory=false;
+let db={days:{},names:[]};
 const $=id=>document.getElementById(id);
+
+function dateKey(d=new Date()){
+ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+}
+function ensureDay(k){
+ if(!db.days[k]) db.days[k]={capital:0,flows:[]};
+}
+function day(){ensureDay(currentDate);return db.days[currentDate]}
+function loadDB(){
+ try{
+  const raw=localStorage.getItem(KEY);
+  if(raw) db=JSON.parse(raw);
+  else{
+   const old=localStorage.getItem(OLD_KEY);
+   if(old){
+    const o=JSON.parse(old);
+    db.names=Array.isArray(o.names)?o.names:[];
+    const d=dateKey();
+    db.days[d]={capital:Number(o.capital)||0,flows:Array.isArray(o.flows)?o.flows:[]};
+   }
+  }
+ }catch(e){db={days:{},names:[]}}
+ if(!db||!db.days)db={days:{},names:[]};
+ if(!Array.isArray(db.names))db.names=[];
+ currentDate=dateKey();
+ ensureDay(currentDate);
+ saveDB();
+}
+function saveDB(){localStorage.setItem(KEY,JSON.stringify(db));}
 
 function pad(n){return String(n).padStart(2,"0")}
 function money(n){return "¥"+Number(n||0).toLocaleString("zh-CN",{minimumFractionDigits:2,maximumFractionDigits:2})}
@@ -157,12 +204,13 @@ function selectType(type){
 }
 
 function addCustomer(){
+ if(viewingHistory){showToast('历史账单只能查看');return}
  const v=prompt("请输入客户姓名");
  if(v===null)return;
  const name=v.trim();
  if(!name)return;
- if(!state.names.includes(name))state.names.unshift(name);
- state.names=state.names.slice(0,50);
+ if(!db.names.includes(name))db.names.unshift(name);
+ db.names=db.names.slice(0,50);
  saveData();
  chooseName(name);
  showToast("已选择："+name);
@@ -185,7 +233,7 @@ function deleteCustomer(name){
  );
  if(!ok)return;
 
- state.names=state.names.filter(n=>n!==name);
+ db.names=db.names.filter(n=>n!==name);
 
  if($("customerInput").value.trim()===name){
   $("customerInput").value="";
@@ -196,6 +244,7 @@ function deleteCustomer(name){
 }
 
 function saveFlow(){
+ if(viewingHistory){showToast('历史账单只能查看');return}
  const customer=$("customerInput").value.trim();
  const amount=Number($("amount").value);
 
@@ -219,9 +268,9 @@ function saveFlow(){
   time:nowTime()
  };
 
- state.flows.push(item);
- if(!state.names.includes(customer))state.names.unshift(customer);
- state.names=state.names.slice(0,50);
+ day().flows.push(item);
+ if(!db.names.includes(customer))db.names.unshift(customer);
+ db.names=db.names.slice(0,50);
 
  $("amount").value="";
  $("note").value="";
@@ -236,9 +285,10 @@ function saveFlow(){
 }
 
 function addCapital(){
+ if(viewingHistory){showToast('历史账单只能查看');return}
  const amount=Number($("capitalAmount").value);
  if(!amount||amount<=0){showToast("请输入本金金额");return}
- state.capital+=amount;
+ day().capital+=amount;
  $("capitalAmount").value="";
  $("capitalNote").value="";
  saveData();
@@ -246,18 +296,21 @@ function addCapital(){
 }
 
 function resetCapital(){
- const v=prompt("请输入今晚带入本金金额",String(state.capital||0));
+ if(viewingHistory){showToast('历史账单只能查看');return}
+ const v=prompt("请输入今晚带入本金金额",String(day().capital||0));
  if(v===null)return;
  const amount=Number(v);
  if(!Number.isFinite(amount)||amount<0){showToast("金额不正确");return}
- state.capital=amount;
+ day().capital=amount;
  saveData();
  showToast("本金已重新设置");
 }
 
 /* 删除流水必须确认 */
 function deleteFlow(id){
- const f=state.flows.find(x=>x.id===id);
+ if(viewingHistory){showToast('历史账单只能查看');return}
+
+ const f=day().flows.find(x=>x.id===id);
  if(!f)return;
  const type=f.type==="lend"?"借出":f.type==="repay"?"还款":"其他收入";
  const ok=confirm(
@@ -268,25 +321,26 @@ function deleteFlow(id){
  );
  if(!ok)return;
 
- const i=state.flows.findIndex(x=>x.id===id);
+ const i=day().flows.findIndex(x=>x.id===id);
  if(i<0)return;
- deleted=state.flows.splice(i,1)[0];
+ deleted=day().flows.splice(i,1)[0];
  saveData();
  showToast("已删除，可撤销");
 }
 
 function undoDelete(){
  if(!deleted){showToast("没有可以撤销的记录");return}
- state.flows.push(deleted);
+ day().flows.push(deleted);
  deleted=null;
  saveData();
  showToast("已恢复");
 }
 
 function clearToday(){
- if(!state.flows.length){showToast("今晚没有流水");return}
+ if(viewingHistory){showToast('历史账单只能查看');return}
+ if(!day().flows.length){showToast("今晚没有流水");return}
  if(confirm("确定清空今晚全部流水吗？")){
-  state.flows=[];
+  day().flows=[];
   saveData();
   showToast("今晚流水已清空");
  }
@@ -301,7 +355,7 @@ function escapeJs(t){
 
 function renderReport(){
  const map={};
- state.flows.forEach(f=>{
+ day().flows.forEach(f=>{
   if(!map[f.customer])map[f.customer]={lend:0,repay:0,other:0};
   if(f.type==="lend")map[f.customer].lend+=f.amount;
   else if(f.type==="repay")map[f.customer].repay+=f.amount;
@@ -334,8 +388,88 @@ function renderReport(){
  $("report").innerHTML=html;
 }
 
+
+function showHistory(){
+ viewingHistory=true;
+ $("historyPanel").style.display="block";
+ $("allReportPanel").style.display="none";
+ $("backTodayBtn").style.display="inline-block";
+ renderHistory();
+ $("historyPanel").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function renderHistory(){
+ const box=$("historyList");
+ const dates=Object.keys(db.days).sort().reverse();
+ if(!dates.length){box.innerHTML='<div class="empty">暂无历史账单</div>';return}
+ box.innerHTML=dates.map(d=>{
+  const f=db.days[d].flows||[];
+  let lend=0,repay=0,other=0;
+  f.forEach(x=>{if(x.type==="lend")lend+=Number(x.amount)||0;else if(x.type==="repay")repay+=Number(x.amount)||0;else other+=Number(x.amount)||0});
+  return `<div style="padding:12px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;gap:8px">
+   <div><b>${d}</b><div class="help">借出 ${money(lend)}　还款 ${money(repay)}　其他 ${money(other)}　共 ${f.length} 笔</div></div>
+   <button class="small-btn" onclick="openDate('${d}')">查看明细</button>
+  </div>`;
+ }).join("");
+}
+function openDate(d){
+ currentDate=d;viewingHistory=true;
+ $("historyPanel").style.display="block";
+ $("allReportPanel").style.display="none";
+ $("backTodayBtn").style.display="inline-block";
+ render();
+}
+function backToday(){
+ currentDate=dateKey();ensureDay(currentDate);viewingHistory=false;
+ $("historyPanel").style.display="none";
+ $("allReportPanel").style.display="none";
+ $("backTodayBtn").style.display="none";
+ render();
+}
+function showAllReport(){
+ $("historyPanel").style.display="none";
+ $("allReportPanel").style.display="block";
+ renderAllReport();
+ $("allReportPanel").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function renderAllReport(){
+ const map={};
+ Object.keys(db.days).sort().forEach(d=>{
+  (db.days[d].flows||[]).forEach(f=>{
+   if(!map[f.customer])map[f.customer]={lend:0,repay:0,other:0,flows:[]};
+   if(f.type==="lend")map[f.customer].lend+=Number(f.amount)||0;
+   else if(f.type==="repay")map[f.customer].repay+=Number(f.amount)||0;
+   else map[f.customer].other+=Number(f.amount)||0;
+   map[f.customer].flows.push({...f,date:d});
+  });
+ });
+ const names=Object.keys(map);
+ if(!names.length){$("allReport").innerHTML='<div class="empty">暂无总流水</div>';return}
+ let html="";
+ names.sort((a,b)=>(map[b].lend-map[b].repay)-(map[a].lend-map[a].repay)).forEach(name=>{
+  const x=map[name],debt=x.lend-x.repay;
+  html+=`<div class="report-card">
+   <div class="report-title"><span class="report-name">${escapeHtml(name)}</span><span class="report-total">当前应收 ${money(debt)}</span></div>
+   <div class="report-grid">
+    <div class="report-cell debt"><small>累计借出</small><b>${money(x.lend)}</b></div>
+    <div class="report-cell repay"><small>累计还款</small><b>${money(x.repay)}</b></div>
+    <div class="report-cell net"><small>当前应收</small><b>${money(debt)}</b></div>
+   </div>
+   <div style="padding:10px 12px">
+   ${x.flows.slice().sort((a,b)=>(b.time||"").localeCompare(a.time||"")).map(f=>{
+    const label=f.type==="lend"?"借出":f.type==="repay"?"还款":"其他收入";
+    return `<div style="display:grid;grid-template-columns:82px 1fr auto;gap:7px;padding:7px 0;border-bottom:1px solid #f1f2f4;font-size:13px">
+     <span style="color:#7c8794">${f.date}</span>
+     <span><b class="${f.type}">${label}</b>　${escapeHtml(f.note||"无备注")}<br><small style="color:#9aa3ae">${escapeHtml(f.time||"")}</small></span>
+     <b>${money(f.amount)}</b>
+    </div>`;
+   }).join("")}
+   </div>
+  </div>`;
+ });
+ $("allReport").innerHTML=html;
+}
 function render(){
- $("nameList").innerHTML=state.names.slice(0,20).map(n=>`
+ $("nameList").innerHTML=db.names.slice(0,20).map(n=>`
   <div class="name-item">
    <button class="name-btn" data-name="${escapeHtml(n)}" onclick="chooseName('${escapeJs(n)}')">${escapeHtml(n)}</button>
    <button class="name-del" title="删除客户" onclick="deleteCustomer('${escapeJs(n)}')">×</button>
@@ -343,7 +477,7 @@ function render(){
  `).join("");
 
  let lend=0,repay=0,other=0;
- state.flows.forEach(f=>{
+ day().flows.forEach(f=>{
   if(f.type==="lend")lend+=f.amount;
   else if(f.type==="repay")repay+=f.amount;
   else other+=f.amount;
@@ -352,14 +486,14 @@ function render(){
  $("sumLend").textContent=money(lend);
  $("sumRepay").textContent=money(repay);
  $("sumOther").textContent=money(other);
- $("count").textContent=state.flows.length;
- $("capitalIn").textContent=money(state.capital);
- $("capitalNow").textContent=money(state.capital-lend+repay+other);
+ $("count").textContent=day().flows.length;
+ $("capitalIn").textContent=money(day().capital);
+ $("capitalNow").textContent=money(day().capital-lend+repay+other);
 
  renderReport();
 
  const q=$("search").value.trim().toLowerCase();
- const flows=state.flows.filter(f=>!q||(`${f.customer} ${f.note} ${f.amount}`).toLowerCase().includes(q));
+ const flows=day().flows.filter(f=>!q||(`${f.customer} ${f.note} ${f.amount}`).toLowerCase().includes(q));
  const groups={};
 
  flows.forEach(f=>{
@@ -405,7 +539,7 @@ function render(){
 }
 
 function saveData(){
- localStorage.setItem(KEY,JSON.stringify(state));
+ saveDB();
  render();
 }
 
@@ -415,6 +549,7 @@ $("search").addEventListener("input",render);
 $("customerInput").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("amount").focus()}});
 $("amount").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();saveFlow()}});
 
+loadDB();
 render();
 </script>
 </body>
