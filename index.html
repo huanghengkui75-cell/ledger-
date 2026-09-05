@@ -103,28 +103,25 @@ input{width:100%;height:52px;border:1px solid #dce1e7;border-radius:15px;backgro
 </div>
 </div>
 
-<div class="card" id="todayReportCard">
- <div class="section-title green-title" style="padding:15px 16px 6px">
-  <span>📅　今天报表</span><span class="section-right" id="todayReportDate"></span>
- </div>
- <div id="todayReport" class="report-wrap"></div>
+<div class="card">
+<div class="report-head">
+<div class="section-title green-title" style="margin-bottom:0">
+<span>▤　统计报表</span><span class="section-right">每个客户单独统计</span>
+</div>
+</div>
+<div id="report" class="report-wrap"></div>
 </div>
 
-<div style="padding:0 0 10px">
- <button class="btn outline" style="width:100%" onclick="toggleTotalReport()">📊 查看总报表</button>
+<div class="card">
+<div class="section-title green-title" style="padding:15px 16px 6px"><span>▤　今晚流水</span></div>
+<div class="search"><input id="search" placeholder="⌕　搜索客户、备注或金额"></div>
+<div id="ledger"></div>
+<div class="bottom-actions">
+<button onclick="undoDelete()">↶　撤销删除</button>
+<button onclick="clearToday()">▣　清空今晚流水</button>
+<button onclick="scrollToTop()">↑　回到顶部</button>
 </div>
-
-<div class="card" id="totalReportCard" style="display:none">
- <div class="section-title green-title" style="padding:15px 16px 6px">
-  <span>📊　总报表</span><span class="section-right">全部历史累计</span>
- </div>
- <div id="report" class="report-wrap"></div>
- <div style="padding:0 10px 12px">
-  <button class="btn secondary" style="width:100%" onclick="toggleTotalReport()">收起总报表</button>
- </div>
 </div>
-
-
 
 </div>
 <div id="historyPanel" class="card" style="display:none;margin:0 12px 30px">
@@ -471,116 +468,6 @@ function renderAllReport(){
  });
  $("allReport").innerHTML=html;
 }
-
-function renderGrandTotal(){
- const all=[];
- Object.keys(db.days).forEach(d=>{
-  (db.days[d].flows||[]).forEach(f=>all.push(f));
- });
- let lend=0,repay=0,other=0;
- all.forEach(f=>{
-  if(f.type==="lend")lend+=Number(f.amount)||0;
-  else if(f.type==="repay")repay+=Number(f.amount)||0;
-  else other+=Number(f.amount)||0;
- });
- const outside=lend-repay;
- $("grandTotal").innerHTML=
-  '<div style="font-size:16px;font-weight:900;margin-bottom:10px">💰 全部资金总计</div>'+
-  '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;text-align:center">'+
-  '<div><small style="color:#7c8794">全部借出</small><br><b style="color:#df3d39;font-size:18px">'+money(lend)+'</b></div>'+
-  '<div><small style="color:#7c8794">全部还款</small><br><b style="color:#159447;font-size:18px">'+money(repay)+'</b></div>'+
-  '<div><small style="color:#7c8794">外面未收</small><br><b style="color:#1267d6;font-size:18px">'+money(outside)+'</b></div>'+
-  '</div>'+
-  '<div style="margin-top:9px;text-align:center;color:#7c8794;font-size:12px">计算方式：全部借出 − 全部还款</div>';
-}
-
-function showGlobalSearch(){
- const panel=$("globalSearchPanel");
- panel.style.display=panel.style.display==="none"?"block":"none";
- if(panel.style.display==="block"){
-  $("globalSearchInput").focus();
-  renderGlobalSearch();
- }
-}
-function renderGlobalSearch(){
- const q=$("globalSearchInput").value.trim().toLowerCase();
- const rows=[];
- Object.keys(db.days).sort().reverse().forEach(d=>{
-  (db.days[d].flows||[]).forEach(f=>{
-   const text=[d,f.time,f.customer,f.note,f.amount,
-     f.type==="lend"?"借出":f.type==="repay"?"还款":"其他收入"].join(" ").toLowerCase();
-   if(!q || text.includes(q)) rows.push({...f,date:d});
-  });
- });
- let lend=0,repay=0,other=0;
- rows.forEach(f=>{
-  if(f.type==="lend")lend+=Number(f.amount)||0;
-  else if(f.type==="repay")repay+=Number(f.amount)||0;
-  else other+=Number(f.amount)||0;
- });
- let html=
-  '<div style="padding:11px;border:1px solid #e3e8ed;border-radius:13px;background:#fafbfd;margin-bottom:9px">'+
-  '<b>搜索结果：'+rows.length+' 笔</b>'+
-  '<div class="help">借出 '+money(lend)+'　还款 '+money(repay)+'　其他收入 '+money(other)+
-  '<br><b style="color:#1267d6">搜索结果未收：'+money(lend-repay)+'</b></div></div>';
- if(!rows.length){
-  $("globalSearchResult").innerHTML=html+'<div class="empty">没有找到相关账单</div>';
-  return;
- }
- html+='<div class="customer-group">';
- rows.forEach(f=>{
-  const label=f.type==="lend"?"借出":f.type==="repay"?"还款":"其他收入";
-  const sign=f.type==="lend"?"-":"+";
-  html+=`<div class="flow">
-   <span class="badge ${f.type}">${label}</span>
-   <div class="flow-main">
-    <div class="flow-note">${escapeHtml(f.customer)}　${escapeHtml(f.note||"")}</div>
-    <div class="flow-time">${escapeHtml(f.date)}　${escapeHtml(f.time||"")}</div>
-   </div>
-   <div class="flow-amount ${f.type==="lend"?"minus":"plus"}">${sign}${money(f.amount).slice(1)}</div>
-   <span></span>
-  </div>`;
- });
- html+='</div>';
- $("globalSearchResult").innerHTML=html;
-}
-
-function toggleTotalReport(){
- const card=$("totalReportCard");
- const open=card.style.display!=="none";
- card.style.display=open?"none":"block";
-}
-
-function renderTodayReport(){
- const map={};
- (day().flows||[]).forEach(f=>{
-  if(!map[f.customer])map[f.customer]={lend:0,repay:0,other:0};
-  if(f.type==="lend")map[f.customer].lend+=Number(f.amount)||0;
-  else if(f.type==="repay")map[f.customer].repay+=Number(f.amount)||0;
-  else map[f.customer].other+=Number(f.amount)||0;
- });
- $("todayReportDate").textContent=currentDate;
- const names=Object.keys(map);
- if(!names.length){
-  $("todayReport").innerHTML='<div class="empty">今天还没有流水</div>';
-  return;
- }
- names.sort((a,b)=>(map[b].lend-map[b].repay)-(map[a].lend-map[a].repay));
- $("todayReport").innerHTML=names.map(name=>{
-  const x=map[name],debt=x.lend-x.repay;
-  return `<div class="report-card">
-   <div class="report-title">
-    <span class="report-name">${escapeHtml(name)}</span>
-    <span class="report-total" style="color:#df3d39">今天应欠 ${money(debt)}</span>
-   </div>
-   <div class="report-grid">
-    <div class="report-cell debt"><small>今天借出</small><b>${money(x.lend)}</b></div>
-    <div class="report-cell repay"><small>今天还款</small><b>${money(x.repay)}</b></div>
-    <div class="report-cell net"><small>今天应欠</small><b>${money(debt)}</b></div>
-   </div>
-  </div>`;
- }).join("");
-}
 function render(){
  $("nameList").innerHTML=db.names.slice(0,20).map(n=>`
   <div class="name-item">
@@ -604,7 +491,6 @@ function render(){
  $("capitalNow").textContent=money(day().capital-lend+repay+other);
 
  renderReport();
- renderGrandTotal();
 
  const q=$("search").value.trim().toLowerCase();
  const flows=day().flows.filter(f=>!q||(`${f.customer} ${f.note} ${f.amount}`).toLowerCase().includes(q));
@@ -660,7 +546,6 @@ function saveData(){
 function scrollToTop(){window.scrollTo({top:0,behavior:"smooth"})}
 
 $("search").addEventListener("input",render);
-if($("globalSearchInput"))$("globalSearchInput").addEventListener("input",renderGlobalSearch);
 $("customerInput").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("amount").focus()}});
 $("amount").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();saveFlow()}});
 
